@@ -7,6 +7,11 @@ const app = express()
 
 // Init middleware
 
+// Init Db
+
+// Init router
+
+// error handler
 
 /**
  * Sau khi đã import module vào bằng câu lệnh require thì ta thực hiện exports module
