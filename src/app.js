@@ -8,7 +8,6 @@ const app = express()
 const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
-require('dotenv').config
 // Init middlewares
 app.use(morgan('dev'))
 app.use(helmet())
@@ -16,7 +15,7 @@ app.use(compression())
 
 // Init Db
 require('./dbs/init.mongodb.js')
-// Init routers
+// Init routes
 /**
  * Hàm xử lí yêu cầu người dùng và gửi lại phản hồi khi người dùng yêu cầu truy cập
  * tài nguyên máy chủ
@@ -24,7 +23,7 @@ require('./dbs/init.mongodb.js')
  * của ứng dụng
  *
  * */
-app.use('/', require('./routers/index.js'))
+app.use('/', require('./routes/index.js'))
 
 // error handler
 

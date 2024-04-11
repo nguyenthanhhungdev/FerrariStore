@@ -1,40 +1,36 @@
-const {Model, Schema, Types } = require('mongoose');
-const {Int32} = require("mongodb");
-const Collecttion_Name = "Users"
-const Document_Name = "User"
+'use strict'
+// import {Schema, models} from 'mongoose'
 
-const UserSchema = new Schema({
-    name: {
-        type: String,
-        trim: true,
-        maxLength: 150,
-        require: true
-    },
-    email: {
-        type: String,
-        trim: true,
-        unique: true,
-    },
-    sodienthoai: {
-        type: String,
-        unique: true,
-        maxLength: 10,
-        trim: true,
-        require: true,
-    },
-    diachi: {
-        type: String,
-        trim: true,
-    },
-    diem: {
-        type: Number
-    },
-    dondamua: [{type: Schema.Types.ObjectId, ref: 'Product'}],
-    dondahuy: [{type: Schema.Types.ObjectId, ref: 'Product'}],
-    mavach:{
-        data: Buffer,
-        contentType: String,
-        require: true
-    }
+const { Schema, model, Types } = require('mongoose');
+const commonUser = new Schema({
+    name: {type: String, required: true, trim: true},
+    gender: {type: String, required: true},
+    dateOfBirth: {type: Date, required: true},
+    phone: {type: String, required: true},
+    account: {type: Types.ObjectId, ref: 'Account', required: true}
+}, {
+    timestamps: true,
+})
 
-}, {timestamps: true});
+const staffSchema = new Schema({
+    commonuser: commonUser,
+    address: {type: String, required: true},
+    position: {type: String, required: true}
+}, {
+    timestamps: true,
+    collection: "Staff"
+})
+
+const customerSchema = new Schema({
+    commonuser: commonUser,
+    qrCode: {type: String, required: true},
+    membershipPoint: {type: Number, required: true}
+}, {
+    timestamps: true,
+    collection: "Customer"
+})
+
+const Staff = model('Staff', staffSchema);
+const Customer = model('Customer', customerSchema);
+
+module.exports = {Staff, Customer}
