@@ -12,6 +12,7 @@ const compression = require("compression");
 app.use(morgan('dev'))
 app.use(helmet())
 app.use(compression())
+app.use(express.json());
 
 // Init Db
 require('./dbs/init.mongodb.js')

@@ -16,7 +16,7 @@ router.get('/products/:id', product.findProductById);
 //findProductByName
 router.get('/products/name/:name', product.findProductByName);
 //createProduct
-router.post('/products', product.createProduct);
+router.post('/products/create', product.createProduct);
 //updateProductById
 router.put('/products/update/:id', product.updateProductById);
 //deleteProductById
