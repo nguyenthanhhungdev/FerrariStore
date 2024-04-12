@@ -3,6 +3,7 @@
 
 const Category = require('../models/category.model.js');
 const Product = require('../models/product.model.js');
+const { ObjectId } = require('mongodb');
 class CategoryService {
     getAllCategories = async () => {
         try {
@@ -22,7 +23,6 @@ class CategoryService {
     };
     createCategory = async (name) => {
         try {
-            console.log('::[P]::Creating category')
             const category = new Category({ name });
             return await category.save();
         } catch (err) {
@@ -32,18 +32,7 @@ class CategoryService {
 
     updateCategoryById = async (id, name) => {
         try {
-            const category = await Category.findByIdAndUpdate(
-                id,
-                { $set: { name } },
-                { new: true, runValidators: true }
-            );
-
-            if (!category) {
-                const error = new Error('Category not found');
-                error.statusCode = 404;
-                throw error;
-            }
-
+            return await Category.findByIdAndUpdate(id, {name}, {new: true});
         } catch (err) {
             throw err;
         }

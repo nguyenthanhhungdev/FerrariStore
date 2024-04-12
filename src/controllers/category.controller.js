@@ -43,10 +43,13 @@ class CategoryController{
     updateCategoryById = async (req, res) => {
         try {
             const categoryId = req.params.id;
-            await categoryService.updateCategoryById(categoryId, req.body);
-            res.status(200).json({message: 'Category updated successfully'});
+            const category = await categoryService.updateCategoryById(categoryId, req.body.name);
+            if (category === null) {
+                return res.status(404).json({message: 'Category not found'});
+            }
+            res.status(200).json({message: 'Category updated successfully', metadata: category});
         } catch (err) {
-            res.status(err.statusCode).json({message: err.message});
+            res.status(404).json({message: err.message});
         }
     };
 
