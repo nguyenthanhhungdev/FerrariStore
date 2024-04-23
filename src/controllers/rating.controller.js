@@ -12,11 +12,11 @@ class ratingController {
                 customer,
                 product
             } = req.params;
-            const rating  = req.body;
+            const rating  = req.body.rating;
             await ratingService.createRating(product, customer, rating);
             return res.status(200).json({ message: 'Rating created successfully' });
         } catch (error) {
-            res.status(error.statusCode).json({ message: error.message });
+            res.status(error.status || 500).json({ message: error.message });
             return false;
         }
     }
@@ -27,11 +27,24 @@ class ratingController {
                 customer,
                 product
             } = req.params;
-            const rating  = req.body;
+            const rating  = req.body.rating;
             await ratingService.changeRating(product, customer, rating);
             return res.status(200).json({ message: 'Rating changed successfully' });
         } catch (error) {
-            res.status(error.statusCode).json({ message: error.message });
+            res.status(error.status || 500).json({ message: error.message });
+            return false;
+        }
+    }
+    deleteRating = async (req, res) => {
+        try {
+            const {
+                customer,
+                product
+            } = req.params;
+            await ratingService.deleteRating(product, customer);
+            return res.status(200).json({ message: 'Rating deleted successfully' });
+        } catch (error) {
+            res.status(error.status || 500).json({ message: error.message });
             return false;
         }
     }

@@ -1,6 +1,6 @@
 // import {Schema, models, Types} from 'mongoose';
 
-const { Schema, model, Types } = require('mongoose');
+const { Schema, model } = require('mongoose');
 const Collection_Name = 'Product';
 const ProductSchema = new Schema({
     name: {
@@ -20,7 +20,7 @@ const ProductSchema = new Schema({
         required: true
     },
     category: {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Category',
         required: true
     },
@@ -28,9 +28,13 @@ const ProductSchema = new Schema({
         type: Boolean,
         default: false
     },
-    rating: {
-        type: Types.ObjectId,
-        ref: 'Rating'
+    ratings: [{rating :{
+        type: Schema.Types.ObjectId,
+        ref: 'Rating',
+    }}],
+    avgRating: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true,

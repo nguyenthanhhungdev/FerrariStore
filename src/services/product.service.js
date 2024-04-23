@@ -2,7 +2,7 @@
 // import Product from '../models/product.model';
 // import Rating from '../models/rating.model';
 
-const {Product} = require('../models/product.model');
+const Product = require('../models/product.model');
 class ProductService{
     getProducts = async () => {
         try {
