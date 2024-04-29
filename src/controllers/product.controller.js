@@ -11,7 +11,7 @@
 //     getProductsWithRating as _getProductsWithRating,
 //     getProductsWithRating_Hung as _getProductsWithRating_Hung
 // } from '../../../../WebstormProjects/CofeeBackEnd/src/services/product.service';
-const {productService} = require('../services/product.service')
+const productService = require('../services/product.service')
 
 class productController {
 
@@ -51,11 +51,9 @@ class productController {
             const product = await productService.findProductById(req.params.id);
             if (product) {
                 res.status(200).json(product);
-            } else {
-                res.status(404).json({message: 'Product is not fount'});
             }
         } catch (err) {
-            res.status(500).json({message: err.message});
+            res.status(err.status? err.status: 500).json({message: err.message});
         }
     }
 
@@ -64,18 +62,16 @@ class productController {
             const product = await productService.findProductByName(req.params.name);
             if (product) {
                 res.status(200).json(product);
-            } else {
-                res.status(404).json({message: 'Product is not fount'});
             }
         } catch (err) {
-            res.status(500).json({message: err.message});
+            res.status(err.status? err.status: 500).json({message: err.message});
         }
     }
 
     createProduct = async (req, res) => {
         try {
             const product = await productService.createProduct(req.body);
-            res.status(201).json({message: 'Product created successfully'});
+            res.status(201).json({message: 'Product created successfully', metadata: product});
         } catch (err) {
             res.status(500).json({message: err.message});
         }
@@ -84,20 +80,18 @@ class productController {
     updateProductById = async (req, res) => {
         try {
             const product = await productService.updateProductById(req.params.id, req.body);
-            res.status(200).json({message: 'Product updated successfully'});
+            res.status(200).json({message: 'Product updated successfully', metadata: product});
         } catch (err) {
-              res.status(err.statusCode).json({message: err.message});
+              res.status(err.status? err.status: 500).json({message: err.message});
         }
     }
 
     deleteProductById = async (req, res) => {
         try {
             const product = await productService.deleteProductById(req.params.id);
-            res.status(200).json({message: 'Product deleted successfully'});
+            res.status(200).json({message: 'Product deleted successfully', metadata: product});
         } catch (err) {
-            if (err.statusCode === 404) {
-                res.status(404).json({message: err.message});
-            } else res.status(500).json({message: err.message});
+            res.status(err.status? err.status: 500).json({message: err.message});
         }
     }
 

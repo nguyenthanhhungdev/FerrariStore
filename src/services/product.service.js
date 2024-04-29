@@ -45,28 +45,28 @@ class ProductService{
     }
 
     createProduct = async (data) => {
-        try {
-            await Product.create({data})
-        } catch (error) {
-            throw error;
-        }
+        return await Product.create({
+            ...data
+        });
     }
     updateProductById = async (productId, updateData) => {
-        const updateProduct = Product.findByIdAndUpdate(productId, updateData, {new: true});
+        const updateProduct = await Product.findByIdAndUpdate(productId, updateData, {new: true}).exec();
         if (!updateProduct) {
             const error = new Error('Product is not found')
-            error.statusCode = 404;
+            error.status = 404;
             throw error;
         }
+        return updateProduct;
     }
 
     deleteProductById = async (productId) => {
-        const deleteProduct = Product.findByIdAndDelete(productId);
+        const deleteProduct = await Product.findByIdAndDelete(productId).exec();
         if (!deleteProduct) {
             const error = new Error('Product is not found')
-            error.statusCode = 404;
+            error.status = 404;
             throw error;
         }
+        return deleteProduct;
     }
 
     getProductsWithRating = async () => {
