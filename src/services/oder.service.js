@@ -1,7 +1,8 @@
 // import Order from '../models/oder.model';
 
 const Order = require('../models/oder.model');
-class OderService{
+
+class OderService {
     getAllOrders = async () => {
         try {
             return await Order.find().populate('detailOrders.product');
@@ -11,7 +12,7 @@ class OderService{
     }
 
     findOrderById = async (id) => {
-        const order = await Order.findById(id).populate('detailOrders.product');
+        const order = await Order.findById(id).populate('detailOrders.product').exec();
         if (order) {
             return order;
         } else {
@@ -22,21 +23,9 @@ class OderService{
     }
 
     createOrder = async (data) => {
-        try {
-            const {customer, orderDateTime, status, deliveryLocation, note, discount, detailOrders} = data;
-            const parsedDetailOrders = JSON.parse(detailOrders);
-            await Order.create({
-                customer,
-                orderDateTime,
-                status,
-                deliveryLocation,
-                note,
-                discount,
-                detailOrders: parsedDetailOrders,
-            })
-        } catch (err) {
-            throw err;
-        }
+        return await Order.create({
+            ...data
+        });
     }
 
     updateStatus = async (orderId, statusData) => {
@@ -47,8 +36,7 @@ class OderService{
                 error.statusCode = 404;
                 throw error;
             }
-            const {status} = statusData;
-            await Order.updateOne({_id: orderId}, {$set: {status}});
+            await Order.updateOne({_id: orderId}, {$set: {status: statusData}});
         } catch (err) {
             throw err;
         }

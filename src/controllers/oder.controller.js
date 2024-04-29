@@ -23,11 +23,9 @@ class oderController {
             const order = await oderService.findOrderById(req.params.id);
             if (order) {
                 res.status(200).json(order);
-            } else {
-                res.status(404).json({message: 'Order not found'});
             }
         } catch (error) {
-            res.status(error.statusCode).json(error.message);
+            res.status(error.statusCode ? error.statusCode : 500).json(error.message);
         }
     }
 
@@ -45,7 +43,7 @@ class oderController {
             const order = await oderService.updateStatus(req.params.id, req.body.status);
             res.status(200).json({ message: 'Order updated successfully' });
         } catch (error) {
-            res.status(error.statusCode).json(error.message);
+            res.status(error.statusCode ? error.statusCode : 500).json(error.message);
         }
     }
 
@@ -54,7 +52,7 @@ class oderController {
             const orders = await oderService.getOrdersOfStatus(req.params.status);
             res.status(200).json(orders);
         } catch (error) {
-            res.status(error.statusCode).json(error.message);
+            res.status(error.statusCode ? error.statusCode : 500).json(error.message);
         }
     }
 }
