@@ -12,7 +12,7 @@ const cartService = require('../services/cart.service');
 class cartController{
     getCartOfUser = async (req, res) => {
         try {
-            const cart = await cartService.getCartOfUser(req.params.customer);
+            const cart = await cartService.getCartOfCustomer(req.params.customer);
             res.status(200).json(cart);
         } catch (error) {
             res.status(error.statusCode).json({message: error.message});
@@ -21,8 +21,8 @@ class cartController{
 
     addToCart = async (req, res) => {
         try {
-            await cartService.addToCart(req.params.customer, req.params.product);
-            res.status(200).json({ message: 'Add to cart successfully!' });
+            const cart = await cartService.addToCart(req.params.customer, req.params.product, req.body.amount);
+            res.status(200).json({ message: 'Add to cart successfully!', metadata: cart });
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
         }
@@ -31,7 +31,7 @@ class cartController{
     decreaseProductOfCart = async (req, res) => {
         try {
             const cart = await cartService.decreaseProductOfCart(req.params.customer, req.params.product);
-            res.status(200).json({ message: 'Decrease product of cart successfully!' });
+            res.status(200).json({ message: 'Decrease product of cart successfully!' , metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
         }
@@ -40,7 +40,7 @@ class cartController{
     increaseProductOfCart = async (req, res) => {
         try {
             const cart = await cartService.increaseProductOfCart(req.params.customer, req.params.product);
-            res.status(200).json({ message: 'Increase product of cart successfully!' });
+            res.status(200).json({ message: 'Increase product of cart successfully!', metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
         }
@@ -49,7 +49,7 @@ class cartController{
     resetCart = async (req, res) => {
         try {
             const cart = await cartService.resetCart(req.params.customer);
-            res.status(200).json({ message: 'Reset cart successfully!' });
+            res.status(200).json({ message: 'Reset cart successfully!', metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
         }

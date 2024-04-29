@@ -3,60 +3,57 @@
 // import Product from '../models/product.model';
 // import {Customer} from '../models/user.model.js';
 
-const {Cart} = require('../models/cart.model');
-const {Product} = require('../models/product.model');
+const Cart = require('../models/cart.model');
+const Product = require('../models/product.model');
 const {Customer} = require('../models/user.model');
 class CartService{
-    getCartOfUser = async (customerId) => {
-        const customer = await Customer.findById(customerId);
+    getCartOfCustomer = async (customerId) => {
+        const customer = await Customer.findById(customerId).exec();
         if (!customer) {
             const error = new Error('Customer not found');
             error.statusCode = 404;
             throw error;
         }
-        return await Cart.findOne({customer: customerId}).populate('products.product');
+        return await Cart.findOne({customer: customerId}).populate('products.product').exec();
     }
 
-    addToCart = async (customerId, productId) => {
-        const customer = await Customer.findById(customerId);
+    addToCart = async (customerId, productId, amount) => {
+        const customer = await Customer.findById(customerId).exec();
         if (!customer) {
             const error = new Error('Customer not found');
             error.statusCode = 404;
             throw error;
         }
 
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId).exec();
         if (!product) {
             const error = new Error('Product not found');
             error.statusCode = 404;
             throw error;
         }
 
-        let cart = await Cart.findOne({customer: customerId}).populate('products.product');
+        let cart = await Cart.findOne({ customer: customerId }).exec();
         if (!cart) {
             cart = new Cart({
                 customer: customerId,
-                total: product.price,
-                products: [{productId, amount: 1, price: product.price}],
+                total: product.price * amount,
+                products: [{ product: productId, amount: amount, price: product.price }],
             });
         } else {
             const existingProductIndex = cart.products.findIndex(p => p.product._id.equals(product._id));
             if (existingProductIndex !== -1) {
-                cart.products[existingProductIndex].amount += 1;
-                cart.products[existingProductIndex].price = cart.products[existingProductIndex].product.price * cart.products[existingProductIndex].amount;
-                cart.total += product.price;
+                cart.products[existingProductIndex].amount += amount;
+                cart.total += product.price * amount;
             } else {
-                cart.products.push({productId, amount: 1, price: product.price});
-                cart.total += product.price;
+                cart.products.push({ product: productId, amount: amount, price: product.price });
+                cart.total += product.price * amount;
             }
         }
-
-        await cart.save();
-        return cart;
+        return await cart.save();
     };
 
     getIndexOfProduct = async (customerId, productId, cart) => {
-        const customer = await Customer.findById(customerId);
+        const customer = await Customer.findById(customerId).exec();
         if (!customer) {
             const error = new Error('Customer not found');
             error.statusCode = 404;
@@ -75,21 +72,19 @@ class CartService{
             error.statusCode = 404;
             throw error;
         }
-
         return productIndex;
     }
 
     increaseProductOfCart = async (customerId, productId) => {
-        const cart = await Cart.findOne({customer: customerId}).populate('products.product');
+        const cart = await Cart.findOne({customer: customerId}).populate('products.product').exec();
         const product = cart.products[await this.getIndexOfProduct(customerId, productId, cart)];
         product.amount += 1;
-        product.price = product.product.price * product.amount;
         cart.total += product.product.price;
-        await cart.save();
+        return await cart.save();
     };
 
     decreaseProductOfCart = async (customerId, productId) => {
-        let cart = await Cart.findOne({customer: customerId}).populate('products.product');
+        let cart = await Cart.findOne({customer: customerId}).populate('products.product').exec();
         const productIndex = await this.getIndexOfProduct(customerId, productId, cart);
         const product = cart.products[productIndex];
         if (product.amount === 1) {
@@ -97,10 +92,9 @@ class CartService{
             cart.total -= product.price;
         } else {
             product.amount -= 1;
-            product.price = product.product.price * product.amount;
             cart.total -= product.product.price;
         }
-        await cart.save();
+        return await cart.save();
     };
 
     resetCart = async (customerId) => {
@@ -114,12 +108,13 @@ class CartService{
             {customer: customerId},
             {$set: {total: 0, products: []}},
             {new: true}
-        );
+        ).exec();
         if (!cart) {
             const error = new Error('Cart not found');
             error.statusCode = 404;
             throw error;
         }
+        return cart;
     }
 }
 

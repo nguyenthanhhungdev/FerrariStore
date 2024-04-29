@@ -1,7 +1,6 @@
 'use strict'
 // import {Schema, models, Types} from 'mongoose';
 const { Schema, model, Types } = require('mongoose');
-const mongoose = require('mongoose')
 const Collection_Name = 'Cart'
 const cartSchema = new Schema({
     customer: { type: Types.ObjectId, ref: 'Customer', required: true, trim: true },
@@ -11,6 +10,9 @@ const cartSchema = new Schema({
         amount: { type: Number, required: true },
         price: { type: Number, required: true },
     }]
+}, {
+    timestamps: true,
+    collection: Collection_Name
 });
 
 module.exports = model(Collection_Name, cartSchema);
