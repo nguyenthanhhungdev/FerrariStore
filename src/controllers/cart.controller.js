@@ -15,7 +15,7 @@ class cartController{
             const cart = await cartService.getCartOfCustomer(req.params.customer);
             res.status(200).json(cart);
         } catch (error) {
-            res.status(error.statusCode).json({message: error.message});
+            res.status(error.statusCode | 500).json({message: error.message});
         }
     }
 
@@ -30,7 +30,7 @@ class cartController{
 
     decreaseProductOfCart = async (req, res) => {
         try {
-            const cart = await cartService.decreaseProductOfCart(req.params.customer, req.params.product);
+            const cart = await cartService.decreaseProductOfCart(req.params.customer, req.params.product, req.body.amount);
             res.status(200).json({ message: 'Decrease product of cart successfully!' , metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
@@ -39,7 +39,7 @@ class cartController{
 
     increaseProductOfCart = async (req, res) => {
         try {
-            const cart = await cartService.increaseProductOfCart(req.params.customer, req.params.product);
+            const cart = await cartService.increaseProductOfCart(req.params.customer, req.params.product, req.body.amount);
             res.status(200).json({ message: 'Increase product of cart successfully!', metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
@@ -50,6 +50,22 @@ class cartController{
         try {
             const cart = await cartService.resetCart(req.params.customer);
             res.status(200).json({ message: 'Reset cart successfully!', metadata: cart});
+        } catch (error) {
+            res.status(error.statusCode | 500).json({message: error.message});
+        }
+    }
+    updateCart = async (req, res) => {
+        try {
+            console.log("[P]:::Update Status")
+            const products = req.body.products.map(item => {
+                return {
+                    product: item.product,
+                    amount: item.amount
+                };
+            });
+
+            const cart = await cartService.updateCart(req.params.customer,req.body.total, products);
+            res.status(200).json({ message: 'Update cart successfully!', metadata: cart});
         } catch (error) {
             res.status(error.statusCode | 500).json({message: error.message});
         }

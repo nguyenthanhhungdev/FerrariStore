@@ -16,4 +16,6 @@ router.patch('/cart/:customer/decrease/:product', Cart.decreaseProductOfCart);
 router.patch('/cart/:customer/increase/:product', Cart.increaseProductOfCart);
 //resetCart
 router.put('/cart/:customer/reset', Cart.resetCart);
+//updateCart
+router.put('/cart/:customer/update', Cart.updateCart);
 module.exports = router;

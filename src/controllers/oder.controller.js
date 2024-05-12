@@ -40,6 +40,7 @@ class oderController {
 
     updateStatus = async (req, res) => {
         try {
+            console.log("[P]:::Update Status")
             const order = await oderService.updateStatus(req.params.id, req.body.status);
             res.status(200).json({ message: 'Order updated successfully' });
         } catch (error) {
