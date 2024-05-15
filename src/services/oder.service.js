@@ -1,6 +1,7 @@
 // import Order from '../models/oder.model';
 
 const Order = require('../models/oder.model');
+const ProductService = require('../services/product.service');
 
 class OderService {
     getAllOrders = async () => {
@@ -22,12 +23,23 @@ class OderService {
         }
     }
 
-    createOrder = async (data) => {
+    createOrder = async (products, discount, deliveryLocation, note, customer) => {
+        var total = 0;
+        await Promise.all(products.map(async item => {
+            const product = await ProductService.findProductById(item.product);
+            total += product.price * item.amount;
+        }));
+
         return await Order.create({
-            ...data
+            customer: customer,
+            orderDateTime: new Date(),
+            deliveryLocation: deliveryLocation,
+            note: note,
+            discount: discount,
+            detailOrders: products,
+            totalPrice: total
         });
     }
-
     updateStatus = async (orderId, statusData) => {
         try {
             const order = await Order.findById(orderId);

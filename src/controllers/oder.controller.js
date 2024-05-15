@@ -31,8 +31,11 @@ class oderController {
 
     createOrder = async (req, res) => {
         try {
-            const order = await oderService.createOrder(req.body);
-            res.status(200).json({ message: 'Order created successfully' });
+            const {products, discount, deliveryLocation, note} = req.body
+            console.log("[P]:::Create Order")
+            console.log(products)
+            const order = await oderService.createOrder(products, discount, deliveryLocation, note, req.body.customer);
+            res.status(200).json({ message: 'Order created successfully', metadata: order });
         } catch (error) {
             res.status(500).json(error.message);
         }
