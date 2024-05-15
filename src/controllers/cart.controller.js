@@ -10,6 +10,7 @@
 
 const cartService = require('../services/cart.service');
 const productService = require("../services/product.service");
+const {CustomError} = require("../middleware/CustomError.middleware");
 class cartController{
     getCartOfUser = async (req, res) => {
         try {
@@ -58,7 +59,17 @@ class cartController{
     updateCart = async (req, res) => {
         try {
             console.log("[P]:::Update Cart:::")
-            const products = await Promise.all(req.body.products.map(async item => {
+            const products = req.body.products;
+
+            // Check if any property in products is null
+            for (const product of products) {
+                console.log("[P]:::Product:::", product)
+                if (product.product === undefined || product.amount === undefined) {
+                    return res.status(400).json({ message: 'Product or amount cannot be null' });
+                }
+            }
+
+            const updatedProducts = await Promise.all(products.map(async item => {
                 const product = await productService.findProductById(item.product);
                 return {
                     product: item.product,
@@ -67,11 +78,12 @@ class cartController{
                 };
             }));
 
-            const cart = await cartService.updateCart(req.params.customer, products);
+            const cart = await cartService.updateCart(req.params.customer, updatedProducts);
             res.status(200).json({ message: 'Update cart successfully!', metadata: cart});
         } catch (error) {
             res.status(error.statusCode || 500).json({message: error.message});
         }
-    }}
+    }
+}
 const Cart = new cartController();
 module.exports = Cart;
