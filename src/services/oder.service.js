@@ -2,6 +2,7 @@
 
 const Order = require('../models/oder.model');
 const ProductService = require('../services/product.service');
+const {CustomError} = require("../middleware/CustomError.middleware");
 
 class OderService {
     getAllOrders = async () => {
@@ -30,6 +31,20 @@ class OderService {
             total += product.price * item.amount;
         }));
 
+        // Check if a similar order already exists
+        // const existingOrder = await Order.findOne({
+        //     customer: customer,
+        //     deliveryLocation: deliveryLocation,
+        //     note: note,
+        //     discount: discount,
+        //     detailOrders: products,
+        //     totalPrice: total
+        // });
+        //
+        // if (existingOrder) {
+        //     throw new Error('A similar order already exists');
+        // }
+
         return await Order.create({
             customer: customer,
             orderDateTime: new Date(),
@@ -40,20 +55,17 @@ class OderService {
             totalPrice: total
         });
     }
-    updateStatus = async (orderId, statusData) => {
-        try {
-            const order = await Order.findById(orderId);
+    updateStatus = async (customerId, statusData) => {
+        const order = await Order.findOne({customer: customerId}).exec();
+        if (!order) {
             if (!order) {
                 const error = new Error('Order not found');
                 error.statusCode = 404;
                 throw error;
             }
-            await Order.updateOne({_id: orderId}, {$set: {status: statusData}});
-        } catch (err) {
-            throw err;
         }
+        return await Order.updateOne({customer: customerId}, {$set: {status: statusData}}).exec();
     }
-
 
     getOrdersOfStatus = async (status) => {
         try {

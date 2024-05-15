@@ -15,7 +15,8 @@ const orderSchema = new Schema({
         product: { type: Schema.ObjectId, ref: 'Product', required: true },
         amount: { type: Number, required: true }
     }],
-    totalPrice: { type: Number, default: 0, required: true}
+    totalPrice: { type: Number, default: 0, required: true},
+    paymentMethod: { type: String, required: true, default: 'COD'}
 }, {
     timestamps: true,
     collection: Collection_Name
