@@ -30,7 +30,7 @@ class ProductService{
 
     findProductById = async (id) => {
         try {
-            return await Product.findById(id);
+            return await Product.findById(id).exec();
         } catch (error) {
             throw error;
         }
