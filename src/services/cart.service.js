@@ -5,6 +5,7 @@
 
 const Cart = require('../models/cart.model');
 const Product = require('../models/product.model');
+const ProductService = require('../services/product.service');
 const {Customer} = require('../models/user.model');
 class CartService{
     getCartOfCustomer = async (customerId) => {
@@ -134,11 +135,13 @@ class CartService{
                 currentCart.products[productIndex].amount = productDetail.amount;
                 updatedProducts.push(currentCart.products[productIndex]);
             } else {
+                // Get product by id
+                const product = await ProductService.findProductById(productDetail.product);
                 // Add new product to cart
                 updatedProducts.push({
-                    product: productDetail.product._id,
+                    product: productDetail.product,
                     amount: productDetail.amount,
-                    price: productDetail.price,
+                    price: product.price,
                 });
             }
         }
