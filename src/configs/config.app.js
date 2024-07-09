@@ -10,10 +10,12 @@ if(process.env.NODE_ENV === 'production') {
 
 const config  = {
     server:{
-        port: process.env.PORT
+        port: process.env.PORT || 3000
     },
     db:{
-        url: process.env.DB_URL
+        host: process.env.DB_HOST || "127.0.0.1",
+        port: process.env.DB_PORT || 27017,
+        db_name: process.env.DB_NAME || "FerrariStore"
     }
 };
 module.exports = config;

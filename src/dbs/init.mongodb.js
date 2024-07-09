@@ -1,8 +1,8 @@
 'use strict'
 // import mongoose from "mongoose";
 const mongoose = require('mongoose')
-const {db: {url}} = require('../configs/config.app')
-
+const {db: {host, port, db_name}} = require('../configs/config.app')
+const url = `mongodb://${host}:${port}/${db_name}`
 console.log("DB_URL::" + url)
 
 // Sử dụng singleton pattern để tránh tạo ra nhiều kết nối
