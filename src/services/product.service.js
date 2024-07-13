@@ -45,8 +45,18 @@ class ProductService{
     }
 
     createProduct = async (data) => {
+        // return await Product.create({
+        //     ...data
+        // });
+
         return await Product.create({
-            ...data
+
+            name: data.name,
+            price: data.price,
+            description: data.description,
+            image: data.image,
+            category: data.category
+
         });
     }
     updateProductById = async (productId, updateData) => {

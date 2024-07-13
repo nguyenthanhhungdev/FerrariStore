@@ -1,16 +1,4 @@
 'use strict'
-// import {
-//     getProducts,
-//     getAllProductsPopular as _getAllProductsPopular,
-//     getAllProductsOfCategory as _getAllProductsOfCategory,
-//     findProductById as _findProductById,
-//     findProductByName as _findProductByName,
-//     createProduct as _createProduct,
-//     updateProductById as _updateProductById,
-//     deleteProductById as _deleteProductById,
-//     getProductsWithRating as _getProductsWithRating,
-//     getProductsWithRating_Hung as _getProductsWithRating_Hung
-// } from '../../../../WebstormProjects/CofeeBackEnd/src/services/product.service';
 const productService = require('../services/product.service')
 
 class productController {

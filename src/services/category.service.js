@@ -23,8 +23,9 @@ class CategoryService {
     };
     createCategory = async (name) => {
         try {
-            const category = new Category({ name });
-            return await category.save();
+            return await Category.create({
+                name: name
+            });
         } catch (err) {
             throw err;
         }
