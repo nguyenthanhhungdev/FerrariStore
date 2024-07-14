@@ -36,7 +36,6 @@ const userSchema = new Schema({
 
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt,
-    collection: 'Customer'
 });
 
 
@@ -65,6 +64,9 @@ const customerSchema = new Schema({
     userSchema: userSchema,
     wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product' }], // Tham chiếu đến model Product
     orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }], // Tham chiếu đến model Order
+}, {
+    timestamps: true,
+    collection: 'Customer' // Set Name
 })
 
 // Định nghĩa các hằng số cho từng quyền
