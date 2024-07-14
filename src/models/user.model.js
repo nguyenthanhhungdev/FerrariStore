@@ -35,7 +35,8 @@ const userSchema = new Schema({
     },
 
 }, {
-    timestamps: true // Tự động thêm createdAt và updatedAt
+    timestamps: true, // Tự động thêm createdAt và updatedAt,
+    collection: 'Customer'
 });
 
 
@@ -55,6 +56,9 @@ const staffSchema = new Schema({
         type: String,
         required: true
     },
+}, {
+    timestamps: true,
+    collection: 'Staff' // Set Name
 })
 
 const customerSchema = new Schema({
@@ -120,7 +124,10 @@ customerSchema.methods.assignDefaultPermissions = function() {
         userSchema.statics.permissions.CONTACT_SUPPORT;
 };
 
+const Staff = model('Staff', staffSchema);
+const Customer = model('Customer', customerSchema);
+
 module.exports = {
-    Staff: model('Staff', staffSchema),
-    Customer: model('Customer', customerSchema)
+    Staff,
+    Customer
 };
