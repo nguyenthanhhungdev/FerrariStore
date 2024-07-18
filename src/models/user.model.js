@@ -88,44 +88,26 @@ userSchema.statics.permissions = {
     VIEW_SYSTEM_LOGS: 1 << 14 // 16384
 };
 
-// Phương thức kiểm tra quyền
-userSchema.methods.hasPermission = function(requiredPermission) {
-    return this.permissions.includes(requiredPermission);
+// Add this inside userSchema.statics for role-permissions mapping
+userSchema.statics.rolePermissions = {
+    customer: [
+        userSchema.statics.permissions.VIEW_PRODUCTS,
+        userSchema.statics.permissions.VIEW_ORDER_HISTORY,
+        userSchema.statics.permissions.UPDATE_PROFILE,
+        userSchema.statics.permissions.CHANGE_PASSWORD,
+        userSchema.statics.permissions.CONTACT_SUPPORT,
+    ],
+    admin: Object.values(userSchema.statics.permissions), // Admin has all permissions
+    sales: [
+        userSchema.statics.permissions.VIEW_PRODUCTS,
+        userSchema.statics.permissions.CREATE_ORDER,
+        userSchema.statics.permissions.VIEW_ORDER_HISTORY,
+        userSchema.statics.permissions.MANAGE_ORDERS,
+        userSchema.statics.permissions.VIEW_CUSTOMERS,
+        userSchema.statics.permissions.CONTACT_CUSTOMERS,
+        userSchema.statics.permissions.VIEW_SALES_REPORTS,
+    ],
 };
-
-// Phương thức gán quyền cho staff
-staffSchema.methods.assignDefaultPermissionsForAdmin = function() {
-    this.permissions = userSchema.statics.permissions.VIEW_PRODUCTS |
-        userSchema.statics.permissions.CREATE_ORDER |
-        userSchema.statics.permissions.VIEW_ORDER_HISTORY |
-        userSchema.statics.permissions.MANAGE_ORDERS |
-        userSchema.statics.permissions.VIEW_SALE_REPORTS |
-        userSchema.statics.permissions.VIEW_CUSTOMERS |
-        userSchema.statics.permissions.CONTACT_CUSTOMERS |
-        userSchema.statics.permissions.VIEW_SALES_REPORTS |
-        userSchema.statics.permissions.UPDATE_PROFILE |
-        userSchema.statics.permissions.CHANGE_PASSWORD |
-        userSchema.statics.permissions.MANAGE_PRODUCTS |
-        userSchema.statics.permissions.MANAGE_WEBSITE_SETTINGS;
-};
-staffSchema.methods.assignDefaultPermissionsForSales = function() {
-    this.permissions = userSchema.statics.permissions.VIEW_PRODUCTS |
-        userSchema.statics.permissions.CREATE_ORDER |
-        userSchema.statics.permissions.VIEW_ORDER_HISTORY |
-        userSchema.statics.permissions.MANAGE_ORDERS |
-        userSchema.statics.permissions.VIEW_CUSTOMERS |
-        userSchema.statics.permissions.CONTACT_CUSTOMERS |
-        userSchema.statics.permissions.VIEW_SALES_REPORTS
-};
-
-customerSchema.methods.assignDefaultPermissions = function() {
-    this.permissions = userSchema.statics.permissions.VIEW_PRODUCTS |
-        userSchema.statics.permissions.VIEW_ORDER_HISTORY |
-        userSchema.statics.permissions.UPDATE_PROFILE |
-        userSchema.statics.permissions.CHANGE_PASSWORD |
-        userSchema.statics.permissions.CONTACT_SUPPORT;
-};
-
 const Staff = model('Staff', staffSchema);
 const Customer = model('Customer', customerSchema);
 
