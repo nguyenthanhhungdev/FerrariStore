@@ -7,7 +7,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     password: {
         type: String,
@@ -19,7 +19,8 @@ const userSchema = new Schema({
     },
     phone: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     gender: {
         type: String,
@@ -29,9 +30,10 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    permissions: {
-        type: [Number],
-        default: []
+    role: {
+        type: String,
+        enum: ['admin', 'sales', 'manager', 'customer'],
+        default: 'customer'
     },
 
 }, {
@@ -40,15 +42,10 @@ const userSchema = new Schema({
 
 
 const staffSchema = new Schema({
-    userSchema: userSchema,
+    ...userSchema.obj,
     salary: {
         type: Number,
         required: true
-    },
-    role: {
-        type: String,
-        enum: ['admin', 'sales'],
-        default: 'sales'
     },
 
     address: {
@@ -61,53 +58,14 @@ const staffSchema = new Schema({
 })
 
 const customerSchema = new Schema({
-    userSchema: userSchema,
-    wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product' }], // Tham chiếu đến model Product
-    orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }], // Tham chiếu đến model Order
+    ...userSchema.obj,
+    wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product', default: null}], // Tham chiếu đến model Product
+    orders: [{ type: Schema.Types.ObjectId, ref: 'Order', default: null}], // Tham chiếu đến model Order
 }, {
     timestamps: true,
     collection: 'Customer' // Set Name
 })
 
-// Định nghĩa các hằng số cho từng quyền
-userSchema.statics.permissions = {
-    VIEW_PRODUCTS: 1 << 0, // 1
-    CREATE_ORDER: 1 << 1, // 2
-    VIEW_ORDER_HISTORY: 1 << 2, // 4
-    MANAGE_ORDERS: 1 << 3, // 8
-    VIEW_SALE_REPORTS: 1 << 4, // 16
-    VIEW_CUSTOMERS: 1 << 5, // 32
-    CONTACT_CUSTOMERS: 1 << 6, // 64
-    VIEW_SALES_REPORTS: 1 << 7, // 128
-    UPDATE_PROFILE: 1 << 8, // 256
-    CHANGE_PASSWORD: 1 << 9, // 512
-    CONTACT_SUPPORT: 1 << 10, // 1024
-    MANAGE_PRODUCTS: 1 << 11, // 2048
-    MANAGE_USERS: 1 << 12, // 4096
-    MANAGE_WEBSITE_SETTINGS: 1 << 13, // 8192
-    VIEW_SYSTEM_LOGS: 1 << 14 // 16384
-};
-
-// Add this inside userSchema.statics for role-permissions mapping
-userSchema.statics.rolePermissions = {
-    customer: [
-        userSchema.statics.permissions.VIEW_PRODUCTS,
-        userSchema.statics.permissions.VIEW_ORDER_HISTORY,
-        userSchema.statics.permissions.UPDATE_PROFILE,
-        userSchema.statics.permissions.CHANGE_PASSWORD,
-        userSchema.statics.permissions.CONTACT_SUPPORT,
-    ],
-    admin: Object.values(userSchema.statics.permissions), // Admin has all permissions
-    sales: [
-        userSchema.statics.permissions.VIEW_PRODUCTS,
-        userSchema.statics.permissions.CREATE_ORDER,
-        userSchema.statics.permissions.VIEW_ORDER_HISTORY,
-        userSchema.statics.permissions.MANAGE_ORDERS,
-        userSchema.statics.permissions.VIEW_CUSTOMERS,
-        userSchema.statics.permissions.CONTACT_CUSTOMERS,
-        userSchema.statics.permissions.VIEW_SALES_REPORTS,
-    ],
-};
 const Staff = model('Staff', staffSchema);
 const Customer = model('Customer', customerSchema);
 

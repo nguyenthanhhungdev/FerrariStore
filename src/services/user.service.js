@@ -8,7 +8,6 @@ const {Customer} = require("../models/user.model"); // Adjust the path as necess
  * Input: email, password, name, phone
  * Output: JWT token
  * 1. Validate userData
- * 2. Check if user already exists
  * 3. Hash password
  * 4. Create user
  * 5. Generate JWT
@@ -17,14 +16,6 @@ const {Customer} = require("../models/user.model"); // Adjust the path as necess
 
 
 const signUp = async (userData) => {
-    // Validate userData here (e.g., using Joi or express-validator)
-
-    // Check if customer already exists
-    // const existingCustomer = await Customer.findOne({ email: userData.email });
-    // if (existingCustomer) {
-    //     throw new Error('Customer already exists');
-    // }
-
     // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
@@ -35,15 +26,18 @@ const signUp = async (userData) => {
     });
     await customer.save();
 
-// Generate JWT with permissions
-    const token = jwt.sign(
+
+    // Generate JWT with permissions
+    return jwt.sign(
         {
             userId: customer._id,
-            permissions: permissions
+            role: customer.role,
+            email: customer.email,
+            phone: customer.phone,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+        {expiresIn: '24h'}
+    )
 };
 
 

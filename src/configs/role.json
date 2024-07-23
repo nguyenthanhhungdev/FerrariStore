@@ -1,0 +1,55 @@
+{
+  "roles": [
+    {
+      "name": "customer",
+      "permissions": [
+        "VIEW_PRODUCTS",
+        "VIEW_ORDER_HISTORY",
+        "UPDATE_PROFILE",
+        "CHANGE_PASSWORD",
+        "CONTACT_SUPPORT"
+      ]
+    },
+    {
+      "name": "sales",
+      "permissions": [
+        "VIEW_PRODUCTS",
+        "CREATE_ORDER",
+        "VIEW_ORDER_HISTORY",
+        "MANAGE_ORDERS",
+        "VIEW_CUSTOMERS",
+        "CONTACT_CUSTOMERS",
+        "VIEW_SALES_REPORTS"
+      ]
+    },
+    {
+      "name": "manager",
+      "permissions": [
+        "VIEW_PRODUCTS",
+        "VIEW_ORDER_HISTORY",
+        "VIEW_CUSTOMERS",
+        "VIEW_SALES_REPORTS",
+        "CONTACT_CUSTOMERS",
+        "CREATE_ORDER",
+        "UPDATE_PROFILE",
+        "MANAGE_ORDERS",
+        "MANAGE_USERS",
+        "MANAGE_ROLES",
+        "MANAGE_PRODUCT"
+      ]
+    },
+    {
+      "name": "admin",
+      "permissions": [
+        "VIEW_SYSTEM_LOG",
+        "MANAGE_WEB_SETTING"
+      ]
+    },
+    {
+      "name": "anonymous",
+      "permissions": [
+        "VIEW_PRODUCTS"
+      ]
+    }
+  ]
+}

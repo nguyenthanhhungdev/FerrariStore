@@ -11,7 +11,7 @@ router.use('/v1/api', require('../routes/rating'));
 router.use('/v1/api', require('../routes/category'));
 router.use('/v1/api', require('../routes/cart'));
 router.use('/v1/api', require('../routes/oder'));
-router.use('/v1/api', require('../routes/customer'));
+router.use('/v1/api', require('../routes/user'));
 
 
 module.exports = router;
