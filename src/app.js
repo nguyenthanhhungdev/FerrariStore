@@ -26,6 +26,11 @@ require('./dbs/init.mongodb.js')
  * */
 app.use('/', require('./routes/index.js'))
 
+
+const passport = require('passport')
+require('/configs/passport.config')(passport)
+app.use(passport.initialize())
+
 // error handler
 
 /**
