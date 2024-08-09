@@ -1,4 +1,3 @@
-const Joi = require('joi');
 
 // Generalized validation middleware
 const validateMiddleware = (schema) => async (req, res, next) => {
@@ -15,4 +14,4 @@ const validateMiddleware = (schema) => async (req, res, next) => {
     }
 };
 
-module.exports = validateMdiddleware;
+module.exports = validateMiddleware;

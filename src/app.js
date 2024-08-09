@@ -5,6 +5,7 @@
 'use strict'
 const express = require('express')
 const app = express()
+const cookieParser = require('cookie-parser')
 const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
@@ -26,10 +27,15 @@ require('./dbs/init.mongodb.js')
  * */
 app.use('/', require('./routes/index.js'))
 
-
+// Init passport
 const passport = require('passport')
-require('/configs/passport.config')(passport)
+require('/configs/passport.config')
 app.use(passport.initialize())
+
+// Use cookieParser
+app.use(cookieParser())
+
+
 
 // error handler
 

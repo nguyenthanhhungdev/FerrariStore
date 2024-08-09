@@ -1,16 +1,18 @@
-'use strict'
-
 const { signUp } = require('../services/user.service');
 
 const signupController = async (req, res) => {
     try {
-        const userData = req.body;
-        const token = await signUp(userData);
-        res.status(201).json({ token });
+        const { token, user } = await signUp(req.body);
+        res.cookie('token', token, { httpOnly: true ,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+        res.status(200).json({
+            success: true,
+            user
+        });
     } catch (error) {
-        // Assuming error handling is simplified for brevity
-        // In production, consider more nuanced error handling and responses
-        res.status(400).json({ message: error.message });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 

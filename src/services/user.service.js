@@ -1,46 +1,35 @@
-const bcrypt = require('bcrypt'); //Hash password
-const jwt = require('jsonwebtoken'); //Create token
-const User = require('../models/user.model');
-const {Customer} = require("../models/user.model"); // Adjust the path as necessary
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { User } = require('../models/user.model');
 
-
-/**
- * Input: email, password, name, phone
- * Output: JWT token
- * 1. Validate userData
- * 3. Hash password
- * 4. Create user
- * 5. Generate JWT
- * 6. Return token
- * */
-
-
-const signUp = async (userData) => {
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-    // Create customer
-    const customer = new Customer({
-        ...userData,
-        password: hashedPassword,
-    });
-    await customer.save();
-
-
-    // Generate JWT with permissions
-    return jwt.sign(
-        {
-            userId: customer._id,
-            role: customer.role,
-            email: customer.email,
-            phone: customer.phone,
-        },
-        process.env.JWT_SECRET,
-        {expiresIn: '24h'}
-    )
+const validateUserData = (userData) => {
+    if (!userData.email) throw new Error('You must enter an email address.');
+    if (!userData.name) throw new Error('You must enter your full name.');
+    if (!userData.password) throw new Error('You must enter a password.');
+    if (!userData.phone) throw new Error('You must enter a phone number.');
 };
 
+const signUp = async (userData) => {
+    validateUserData(userData);
 
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) throw new Error('User already exists');
 
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const user = new User({ ...userData, password: hashedPassword });
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+    return {
+        token: `Bearer ${token}`,
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        }
+    };
+};
 
 module.exports = { signUp };

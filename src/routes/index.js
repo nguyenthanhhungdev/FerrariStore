@@ -7,7 +7,7 @@ router.use('/v1/api', require('../routes/rating'));
 router.use('/v1/api', require('../routes/category'));
 router.use('/v1/api', require('../routes/cart'));
 router.use('/v1/api', require('../routes/oder'));
-router.use('/v1/api', require('../routes/user'));
+router.use('/v1/api', require('./user/aut.route'));
 router.use('/v1/api', require('../routes/protected/protected.route'));
 
 

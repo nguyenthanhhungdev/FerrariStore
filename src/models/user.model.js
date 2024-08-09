@@ -1,5 +1,4 @@
 'use strict'
-// import {Schema, models} from 'mongoose'
 
 const { Schema, model, Types, models} = require('mongoose');
 
@@ -30,6 +29,10 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    address: {
+        type: String,
+        required: true
+    },
     role: {
         type: String,
         enum: ['admin', 'sales', 'manager', 'customer'],
@@ -38,38 +41,11 @@ const userSchema = new Schema({
 
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt,
+    collection: 'Users'
 });
 
-
-const staffSchema = new Schema({
-    ...userSchema.obj,
-    salary: {
-        type: Number,
-        required: true
-    },
-
-    address: {
-        type: String,
-        required: true
-    },
-}, {
-    timestamps: true,
-    collection: 'Staff' // Set Name
-})
-
-const customerSchema = new Schema({
-    ...userSchema.obj,
-    wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product', default: null}], // Tham chiếu đến model Product
-    orders: [{ type: Schema.Types.ObjectId, ref: 'Order', default: null}], // Tham chiếu đến model Order
-}, {
-    timestamps: true,
-    collection: 'Customer' // Set Name
-})
-
-const Staff = model('Staff', staffSchema);
-const Customer = model('Customer', customerSchema);
+const User = model('Users', userSchema);
 
 module.exports = {
-    Staff,
-    Customer
+    User
 };
