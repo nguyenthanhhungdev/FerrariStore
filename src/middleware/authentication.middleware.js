@@ -19,15 +19,17 @@ const authMiddleware =async(res, req, next) => {
         }
 
         // Verify the token
-        jwt.verify(token, JWT_SECRET, (err, user) => {
+        jwt.verify(token, JWT_SECRET, async (err, decode) => {
             if (err) {
                 console.log(":::Error in authMiddleware:::", err);
                 return res.status(403).json({ message: "Fibboden" });
             }
-            req.user = user; // Add user to req for next route or middleware
+            req.user = await User.findById(decode.userId); // Add user to req for next route or middleware
             next();
         })
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 }
+
+module.exports = authMiddleware;
