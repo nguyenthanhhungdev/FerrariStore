@@ -29,7 +29,7 @@ app.use('/', require('./routes/index.js'))
 
 // Init passport
 const passport = require('passport')
-require('/configs/passport.config')
+require('./configs/passport.config')
 app.use(passport.initialize())
 
 // Use cookieParser
