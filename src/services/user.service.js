@@ -10,34 +10,33 @@ const validateUserData = (userData) => {
 };
 
 const signUp = async (userData) => {
-    validateUserData(userData);
+    try {
+        validateUserData(userData);
 
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) throw new Error('User already exists');
+        const existingUser = await User.findOne({email: userData.email});
+        if (existingUser) throw new Error('User already exists');
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = new User({ ...userData, password: hashedPassword });
-    await user.save();
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        const user = new User({...userData, password: hashedPassword});
+        const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '15m'});
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+        const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'});
 
-    // Set the refresh token as an HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-    });
+        await user.save();
 
-    return {
-        token: `Bearer ${token}`,
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-        }
-    };
-};
+        return {
+            token: `Bearer ${token}`,
+            refreshToken: `Bearer ${refreshToken}`,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        };
+    } catch (error) {
+        console.log(":::E::: Error in service: ",error);
+        throw error;
+    }};
 
 module.exports = { signUp };

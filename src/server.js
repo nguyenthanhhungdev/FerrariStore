@@ -10,12 +10,12 @@ if(process.env.NODE_ENV === 'production') {
 const {server: {port}} = require('./configs/config.app');
 
 const server = app.listen(port, (err, res) => {
-    console.log(`server listening on ${port}`)
+    console.log(`:::N::: Server listening on ${port}`)
 }); 
 
 process.on("SIGINT", () => {
     server.close(() => {
-        console.log("server closed");
+        console.log(":::N::: Server closed");
         process.exit(0);
     })
 })

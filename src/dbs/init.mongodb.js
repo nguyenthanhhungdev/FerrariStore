@@ -3,7 +3,7 @@
 const mongoose = require('mongoose')
 const {db: {host, port, db_name}} = require('../configs/config.app')
 const url = `mongodb://${host}:${port}/${db_name}`
-console.log("DB_URL::" + url)
+console.log(":::N::: DB_URL::" + url)
 
 // Sử dụng singleton pattern để tránh tạo ra nhiều kết nối
 class Database {
@@ -23,8 +23,8 @@ class Database {
             mongoose.set('debug', {color: true})
         }
         mongoose.connect(url)
-            .then(() => console.log('Kết nối Mongo DB thành công'))
-            .catch(err => console.log("Kết nối Mongo DB không thanh công", err.message))
+            .then(() => console.log(':::N::: Kết nối Mongo DB thành công'))
+            .catch(err => console.log(":::W::: Kết nối Mongo DB không thanh công", err.message))
     }
 }
 const instanceMongoDB = Database.getInstance();

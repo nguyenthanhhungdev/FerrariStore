@@ -12,7 +12,9 @@ const signUpValidationSchema = Joi.object({
     name: Joi.string().required(),
     phone: Joi.string().required(),
     gender: Joi.string().valid('male', 'female', 'other').required(),
-    role: Joi.string().valid("admin", "customer", "sales", "manager").required()
+    role: Joi.string().valid("admin", "customer", "sales", "manager").required(),
+    address: Joi.string().required(),
+
 });
 
 // Apply the validation middleware to the sign-up route

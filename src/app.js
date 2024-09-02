@@ -14,6 +14,7 @@ app.use(morgan('dev'))
 app.use(helmet())
 app.use(compression())
 app.use(express.json());
+require('./configs/config.app')
 
 // Init Db
 require('./dbs/init.mongodb.js')
@@ -31,6 +32,7 @@ app.use('/', require('./routes/index.js'))
 const passport = require('passport')
 require('./configs/passport.config')
 app.use(passport.initialize())
+
 
 // Use cookieParser
 app.use(cookieParser())

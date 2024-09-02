@@ -2,6 +2,7 @@ const passport = require('passport');
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 const {User} = require('../models/user.model'); // Adjust the path as necessary
 
+console.log(":::N::: Load into Passport");
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Sending Token in Header Authorization
     secretOrKey: process.env.JWT_SECRET, // The secret key used to sign the JWT
@@ -31,6 +32,15 @@ passportConfig = async() => {
                 console.log(error);
                 return done(error, false);
             })
+        passport.serializeUser((user, done) => {
+            done(null, user.id);
+        });
+
+        passport.deserializeUser((id, done) => {
+            User.findById(id, (err, user) => {
+                done(err, user);
+            });
+        });
     }))
 };
 
