@@ -30,7 +30,7 @@ app.use('/', require('./routes/index.js'))
 
 // Init passport
 const passport = require('passport')
-require('./configs/passport.config')
+require('./configs/passport.config')(app) // cấu hình passport và truyền vào app như 1 tham số
 app.use(passport.initialize())
 
 

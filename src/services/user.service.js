@@ -25,8 +25,8 @@ const signUp = async (userData) => {
         await user.save();
 
         return {
-            token: `Bearer ${token}`,
-            refreshToken: `Bearer ${refreshToken}`,
+            token: token,
+            refreshToken: refreshToken,
             user: {
                 id: user._id,
                 name: user.name,

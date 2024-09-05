@@ -18,6 +18,6 @@ const signUpValidationSchema = Joi.object({
 });
 
 // Apply the validation middleware to the sign-up route
-router.post('/signup', validateMiddleware(signUpValidationSchema), customer.signupController);
+router.post('/signup', validateMiddleware(signUpValidationSchema),  customer.signupController);
 
 module.exports = router;
