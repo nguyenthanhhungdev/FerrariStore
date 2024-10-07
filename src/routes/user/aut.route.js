@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validateMiddleware = require('../../middleware/validate.middleware');
-const { Customer } = require('../../models/user.model');
-const customer = require('../../controllers/user.controller');
+const userController = require('../../controllers/user.controller');
 const Joi = require('joi');
 
 // Define the schema for sign-up request data validation
@@ -18,6 +17,6 @@ const signUpValidationSchema = Joi.object({
 });
 
 // Apply the validation middleware to the sign-up route
-router.post('/signup', validateMiddleware(signUpValidationSchema),  customer.signupController);
+router.post('/signup', validateMiddleware(signUpValidationSchema),  userController.signupController);
 
 module.exports = router;
