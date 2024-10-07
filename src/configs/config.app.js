@@ -1,6 +1,5 @@
 'use strict'
-console.log(":::N::: ENV: ", process.env.NODE_ENV);
-
+console.info(":::N::: ENV: ", process.env.NODE_ENV);
 if(process.env.NODE_ENV === 'production') {
     require('dotenv').config({ path: 'product.env' });
 } else {
