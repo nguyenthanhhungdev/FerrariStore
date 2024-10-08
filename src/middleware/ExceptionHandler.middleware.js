@@ -1,23 +1,25 @@
-// import logger from '../logger'; // Import logger module
 const logger = require('../utils/logger');
-const {models} = require("mongoose");
+
 class CustomError extends Error {
-    constructor(message, statusCode) {
+    constructor(statusCode, message, metadata = {}) {
         super(message);
         this.statusCode = statusCode;
+        this.metadata = metadata;
     }
 }
 
-const customErrorMiddleware = (err, req, res, next) => {
-    logger.error(err.stack); // Ghi nhật ký lỗi
-
-    if (err instanceof CustomError) {
-        // Xử lý lỗi tự định nghĩa
-        res.status(err.statusCode).json({ message: err.message });
-    } else {
-        // Xử lý lỗi không xác định
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
+const handleError = (err, req, res, next) => {
+    const { statusCode, message, metadata } = err;
+    logger.error(message, { metadata });
+    res.status(statusCode || 500).json({
+        status: "error",
+        statusCode: statusCode || 500,
+        message: message || "Internal Server Error",
+        metadata: metadata || {}
+    });
 };
 
-module.exports = { CustomError, customErrorMiddleware };
+module.exports = {
+    CustomError,
+    handleError
+};

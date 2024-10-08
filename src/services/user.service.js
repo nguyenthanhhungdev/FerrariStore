@@ -2,14 +2,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/user.model');
 const logger = require('../utils/logger');
+const { CustomError } = require('../middleware/ExceptionHandler.middleware');
 class UserService {
     signUp = async (userData) => {
         try {
             const existingUser = await User.findOne({email: userData.email});
             if (existingUser) {
-                const error = new Error('User already exists');
-                error.statusCode = 400;
-                throw error;
+                throw new CustomError(409, 'User already exists', { username: userData.username });
             }
 
             const hashedPassword = await bcrypt.hash(userData.password, 10);

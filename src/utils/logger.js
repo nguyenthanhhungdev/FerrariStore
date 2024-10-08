@@ -33,7 +33,7 @@ const format = winston.format.combine(
     winston.format.colorize({all: true}),
     winston.format.printf( (info) => {
         const meta = info.metadata && Object.keys(info.metadata).length ? `\nMeta: ${JSON.stringify(info.metadata, null, 2)}` : '';
-        return `${info.timestamp} ${info.level}: ${info.message}${meta}`;
+        return `${info.timestamp}-${info.level}: ${info.message} ${meta}`;
     }),
 );
 

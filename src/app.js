@@ -6,14 +6,6 @@
 const express = require('express');
 const { handleError } = require('./middleware/ExceptionHandler.middleware');
 const app = express();
-
-// Các middleware và route khác
-
-// Sử dụng ExceptionHandler
-app.use((err, req, res, next) => {
-    handleError(err, req, res, next);
-});
-
 module.exports = app;
 const cookieParser = require('cookie-parser')
 const helmet = require("helmet");
@@ -50,7 +42,10 @@ app.use(cookieParser())
 
 
 // error handler
-
+// Sử dụng ExceptionHandler
+app.use((err, req, res, next) => {
+    handleError(err, req, res, next);
+});
 /**
  * Sau khi đã import module vào bằng câu lệnh require thì ta thực hiện exports module
  */

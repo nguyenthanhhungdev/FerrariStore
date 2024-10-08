@@ -21,15 +21,14 @@ class UserController {
 
 
         } catch (error) {
-            logger.error('Error in signup controller', {error: error.message, layer: 'CONTROLLER', className: 'UserController', methodName: 'signupController'});
-            // res.status(error.statusCode || 500).json({
-            //     success: false,
-            //     error: error.message
-            // });
+            logger.error('Error in signup', {metadata: {error: error.message, layer: 'CONTROLLER', className: 'UserController', methodName: 'signupController'}});
+            res.status(error.statusCode || 500).json({
+                success: false,
+                error: error.message
+            });
             next(error);
         }
     }
 }
 
 module.exports = new UserController();
-  
