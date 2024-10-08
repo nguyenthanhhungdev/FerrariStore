@@ -1,12 +1,16 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/user.model');
-
+const logger = require('../utils/logger');
 class UserService {
     signUp = async (userData) => {
         try {
             const existingUser = await User.findOne({email: userData.email});
-            if (existingUser) throw new Error('User already exists');
+            if (existingUser) {
+                const error = new Error('User already exists');
+                error.statusCode = 400;
+                throw error;
+            }
 
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             const user = new User({...userData, password: hashedPassword});
@@ -29,7 +33,7 @@ class UserService {
                 }
             };
         } catch (error) {
-            console.log(":::E::: Error in user service: ", error);
+            // logger.error(error, {layer: 'SERVICE'}, 'Error in user service');
             throw error;
         }
     };

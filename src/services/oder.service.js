@@ -2,7 +2,6 @@
 
 const Order = require('../models/oder.model');
 const ProductService = require('../services/product.service');
-const {CustomError} = require("../middleware/CustomError.middleware");
 
 class OderService {
     getAllOrders = async () => {

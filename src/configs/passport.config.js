@@ -1,8 +1,9 @@
 const passport = require('passport');
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 const {User} = require('../models/user.model'); // Adjust the path as necessary
+const logger = require('../utils/logger');
 
-console.log(":::N::: Load into Passport");
+logger.info("Load into Passport");
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Sending Token in Header Authorization
     secretOrKey: process.env.JWT_SECRET, // The secret key used to sign the JWT

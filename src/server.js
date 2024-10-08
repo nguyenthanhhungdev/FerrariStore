@@ -1,4 +1,5 @@
 const app = require("./app");
+const logger = require('./utils/logger');
 // const {server: {port}} = require('./configs/config.mongodb');
 
 if(process.env.NODE_ENV === 'production') {
@@ -10,12 +11,12 @@ if(process.env.NODE_ENV === 'production') {
 const {server: {port}} = require('./configs/config.app');
 
 const server = app.listen(port, (err, res) => {
-    console.log(`:::N::: Server listening on ${port}`)
+    logger.info(`Server listening on ${port}`)
 }); 
 
 process.on("SIGINT", () => {
     server.close(() => {
-        console.log(":::N::: Server closed");
+        logger.info("Server closed");
         process.exit(0);
     })
 })

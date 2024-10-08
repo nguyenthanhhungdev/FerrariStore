@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const {User} = require('../models/user.model');
+const logger = require('../utils/logger');
 
 const refreshToken = async (refreshToken) => {
     try {
@@ -25,7 +26,8 @@ const refreshToken = async (refreshToken) => {
         return jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '15m'});
 
     } catch (error) {
-        console.log(":::E::: Error in auth service: ", error);
+        // console.log(":::E::: Error in auth service: ", error);
+        // logger.error(error, {layer: 'SERVICE'}, 'Error in auth service');
         throw error;
     }
 }

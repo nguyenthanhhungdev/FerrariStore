@@ -1,5 +1,6 @@
 'use strict'
-console.info(":::N::: ENV: ", process.env.NODE_ENV);
+const looger = require('../utils/logger')
+looger.info("ENV: ", process.env.NODE_ENV);
 if(process.env.NODE_ENV === 'production') {
     require('dotenv').config({ path: 'product.env' });
 } else {
