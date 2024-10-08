@@ -1,5 +1,5 @@
 // import logger from '../logger'; // Import logger module
-const logger = require('../logger');
+const logger = require('../utils/logger');
 const {models} = require("mongoose");
 class CustomError extends Error {
     constructor(message, statusCode) {

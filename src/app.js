@@ -3,8 +3,18 @@
  * Sau đó tạo một thể hiện của express bằng cách gọi hàm express().
  */
 'use strict'
-const express = require('express')
-const app = express()
+const express = require('express');
+const { handleError } = require('./middleware/ExceptionHandler.middleware');
+const app = express();
+
+// Các middleware và route khác
+
+// Sử dụng ExceptionHandler
+app.use((err, req, res, next) => {
+    handleError(err, req, res, next);
+});
+
+module.exports = app;
 const cookieParser = require('cookie-parser')
 const helmet = require("helmet");
 const morgan = require("morgan");

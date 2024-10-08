@@ -10,8 +10,6 @@
 
 const cartService = require('../services/cart.service');
 const productService = require("../services/product.service");
-const {CustomError} = require("../middleware/CustomError.middleware");
-
 class cartController {
     getCartOfUser = async (req, res) => {
         try {
