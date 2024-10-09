@@ -1,4 +1,6 @@
 const { Permission } = require('../models/permission.model');
+const { CustomError } = require('./ExceptionHandler.middleware');
+const logger = require('../utils/logger');
 
 /**
  *
@@ -25,10 +27,10 @@ const checkPermission = (requiredPermission) => async (req, res, next) => {
         if (permissions.includes(requiredPermission)) {
             next(); // User has permission, proceed to the next middleware
         } else {
-            res.status(403).json({ message: "Access denied. Insufficient permissions." });
+            next(CustomError(403, "Forbidden", { layer: 'MIDDLEWARE', methodName: 'checkPermission' }));
         }
     } catch (error) {
-        res.status(500).json({ message: "Server error while checking permissions." });
+        next(error);
     }
 };
 
