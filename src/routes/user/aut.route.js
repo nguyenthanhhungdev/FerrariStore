@@ -19,4 +19,12 @@ const signUpValidationSchema = Joi.object({
 // Apply the validation middleware to the sign-up route
 router.post('/signup', validateMiddleware(signUpValidationSchema),  userController.signupController);
 
+// Define the schema for sign-in request data validation
+const signInValidationSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+});
+
+router.post('/signin', validateMiddleware(signInValidationSchema), userController.signInController);
+
 module.exports = router;
