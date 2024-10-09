@@ -18,6 +18,11 @@ async function extracted(user) {
     return {accessToken, refreshTokenDoc};
 }
 
+decodeTokenToUserID = (token) => {
+    const result =  jwt.verify(token, process.env.JWT_SECRET);
+    return result.userId;
+}
+
 class UserService {
     signUp = async (userData) => {
         try {
@@ -76,6 +81,19 @@ class UserService {
             throw error;
         }
     };
+
+    getUseProfileByToken = async (token) => {
+        try {
+            const userId = decodeTokenToUserID(token);
+            const user = await User.findById(userId).exec();
+            if (!user) {
+                throw new CustomError(404, 'User not found');
+            }
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new UserService();

@@ -27,4 +27,6 @@ const signInValidationSchema = Joi.object({
 
 router.post('/signin', validateMiddleware(signInValidationSchema), userController.signInController);
 
+router.get('/profile', userController.getProfileController);
+
 module.exports = router;

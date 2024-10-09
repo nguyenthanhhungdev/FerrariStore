@@ -46,6 +46,16 @@ class UserController {
             next(error);
         }
     }
+
+    getProfileController = async (req, res, next) => {
+        try {
+            const user = await userService.getUseProfileByToken(req.body.accessToken); // Exclude password from the response
+            logger.info('User profile retrieved', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' });
+            res.status(200).json(user);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new UserController();
