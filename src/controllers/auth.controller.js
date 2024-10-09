@@ -5,21 +5,23 @@ const logger = require('../utils/logger');
 class AuthController {
     refreshToken = async (req, res, next) => {
         try {
-            const refreshToken = req.cookies.refreshToken;
-            if (!refreshToken) {
+            const oldRefreshToken = req.cookies.refreshToken;
+            if (!oldRefreshToken) {
                 throw new CustomError(400, 'Refresh token is required');
             }
 
-            const newAccessToken = await authService.refreshToken(refreshToken);
+            const tokens = await authService.refreshToken(oldRefreshToken);
 
-            if (!newAccessToken) {
-                throw new CustomError(401, 'Invalid refresh token');
-            }
+            logger.info('New access token and refresh token created', { layer: 'CONTROLLER', className: 'AuthController', methodName: 'refreshToken' });
 
-            logger.info('New access token created', { layer: 'CONTROLLER', className: 'AuthController', methodName: 'refreshToken' });
+            res.cookie("refreshToken", tokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+            });
             res.status(200).json({
                 success: true,
-                token: newAccessToken
+                token: tokens.accessToken
             });
         } catch (error) {
             next(error);

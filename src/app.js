@@ -11,6 +11,9 @@ const cookieParser = require('cookie-parser')
 const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
+// Use cookieParser
+app.use(cookieParser())
+
 // Init middlewares
 app.use(morgan('dev'))
 app.use(helmet())
@@ -36,8 +39,7 @@ require('./configs/passport.config')(app) // cấu hình passport và truyền v
 app.use(passport.initialize())
 
 
-// Use cookieParser
-app.use(cookieParser())
+
 
 
 

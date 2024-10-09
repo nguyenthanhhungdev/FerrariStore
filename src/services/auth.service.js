@@ -1,35 +1,52 @@
 const jwt = require('jsonwebtoken');
-const {User} = require('../models/user.model');
+const { User } = require('../models/user.model');
 const logger = require('../utils/logger');
+const { CustomError } = require('../middleware/ExceptionHandler.middleware');
 
-const refreshToken = async (refreshToken) => {
+const refreshTokenRotate = async (oldRefreshToken) => {
     try {
-        if (!refreshToken) {
-            const error = new Error('No token provided');
-            error.statusCode = 401;
-            throw error;
+        if (!oldRefreshToken) {
+            throw new CustomError(401, "No token provided", { layer: 'SERVICE', methodName: 'refreshToken'});
         }
-        const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+        let payload;
+        try {
+            // Xác thực refresh token, nếu hết hạn thì sẽ bắn ra lỗi TokenExpiredError
+            payload = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                payload = jwt.decode(oldRefreshToken);
+                if (!payload) {
+                    throw new CustomError(401, 'Invalid token', { layer: 'SERVICE', methodName: 'refreshToken' });
+                }
+            } else {
+                throw err;
+            }
+        }
+
         const user = await User.findById(payload.userId);
         if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 401;
-            throw error;
+            throw new CustomError(401, 'User not found', { layer: 'SERVICE', methodName: 'refreshToken' });
         }
-        if (user.refreshToken!== refreshToken) {
-            const error = new Error('Invalid token');
-            error.statusCode = 401;
-            throw error;
-        }
-        user.refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'});
 
-        return jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '15m'});
+        if (user.refreshToken !== oldRefreshToken) {
+            throw new CustomError(401, 'Invalid token', { layer: 'SERVICE', methodName: 'refreshToken' });
+        }
+
+        const newRefreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        const newAccessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        return {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        };
 
     } catch (error) {
-        // console.log(":::E::: Error in auth service: ", error);
-        // logger.error(error, {layer: 'SERVICE'}, 'Error in auth service');
         throw error;
     }
 }
 
-module.exports = {refreshToken};
+module.exports = { refreshToken: refreshTokenRotate };
