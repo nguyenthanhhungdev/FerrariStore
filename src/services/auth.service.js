@@ -44,7 +44,7 @@ const refreshTokenRotate = async (refreshTokenId) => {
 
         await RefreshToken.findByIdAndDelete(refreshTokenId);
 
-        const newAccessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+        const newAccessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
         return {
             accessToken: newAccessToken,
