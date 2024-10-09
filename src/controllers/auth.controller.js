@@ -5,16 +5,15 @@ const logger = require('../utils/logger');
 class AuthController {
     refreshToken = async (req, res, next) => {
         try {
-            const oldRefreshToken = req.cookies.refreshToken;
-            if (!oldRefreshToken) {
-                throw new CustomError(400, 'Refresh token is required');
+            const refreshTokenId = req.cookies.refreshTokenId;
+            if (!refreshTokenId) {
+                throw new CustomError(400, 'Refresh token ID is required');
             }
 
-            const tokens = await authService.refreshToken(oldRefreshToken);
+            const tokens = await authService.refreshToken(refreshTokenId);
 
             logger.info('New access token and refresh token created', { layer: 'CONTROLLER', className: 'AuthController', methodName: 'refreshToken' });
-
-            res.cookie("refreshToken", tokens.refreshToken, {
+            res.cookie("refreshTokenId", tokens.refreshTokenId, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",

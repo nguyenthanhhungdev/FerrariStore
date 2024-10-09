@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/user.model');
-const logger = require('../utils/logger');
+const RefreshToken = require('../models/refreshToken.model');
 const { CustomError } = require('../middleware/ExceptionHandler.middleware');
+
 class UserService {
     signUp = async (userData) => {
         try {
@@ -15,15 +16,19 @@ class UserService {
             const user = new User({...userData, password: hashedPassword});
             const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '15m'});
 
-            const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '1h'});
+            const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'});
+            const refreshTokenDoc = new RefreshToken({
+                token: refreshToken,
+                userId: user._id,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            });
 
-            user.refreshToken = refreshToken; // Lưu refreshToken vào cơ sở dữ liệu
-
+            await refreshTokenDoc.save();
             await user.save();
 
             return {
                 token: token,
-                refreshToken: refreshToken,
+                refreshTokenId: refreshTokenDoc._id,
                 user: {
                     id: user._id,
                     name: user.name,
@@ -32,9 +37,9 @@ class UserService {
                 }
             };
         } catch (error) {
-            // logger.error(error, {layer: 'SERVICE'}, 'Error in user service');
             throw error;
         }
     };
 }
+
 module.exports = new UserService();

@@ -36,11 +36,7 @@ const userSchema = new Schema({
     role: {
         type: String,
         enum: ['admin', 'sales', 'manager', 'customer'],
-    },
-    refreshToken: {
-        type: String,
-        default: null,
-    },
+    }
 
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt,
