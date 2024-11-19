@@ -3,16 +3,33 @@
 const { Schema, model, Types, models} = require('mongoose');
 
 const userSchema = new Schema({
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
     email: {
         type: String,
         required: true,
-        unique: true,
+        unique: true
     },
     password: {
         type: String,
         required: true
     },
-    name: {
+    avatar: {
+        type: String,
+        required: true
+    },
+    gender: {
         type: String,
         required: true
     },
@@ -21,23 +38,14 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
-    gender: {
-        type: String,
-        enum: ["male", "female", "other"]
-    },
     birthday: {
-        type: Date,
-        default: Date.now
-    },
-    address: {
         type: String,
         required: true
     },
-    role: {
-        type: String,
-        enum: ['admin', 'sales', 'manager', 'customer'],
+    status: {
+        type: Boolean,
+        required: true
     }
-
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt,
     collection: 'Users'
