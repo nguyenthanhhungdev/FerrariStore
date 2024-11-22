@@ -3,19 +3,20 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
 const { CustomError } = require('../middleware/ExceptionHandler.middleware');
+const {loggers} = require("winston");
 
 async function extracted(user) {
     const accessToken = jwt.sign({userId: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '15m'});
 
-    const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'});
-    const refreshTokenDoc = new RefreshToken({
+    const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '100d'});
+    const refreshTokenModel = new RefreshToken({
         token: refreshToken,
         userId: user._id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        expiresAt: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000)
     });
 
-    await refreshTokenDoc.save();
-    return {accessToken, refreshTokenDoc};
+    await refreshTokenModel.save();
+    return {accessToken, refreshToken};
 }
 
 decodeTokenToUserID = (token) => {
@@ -33,16 +34,16 @@ class UserService {
 
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             const user = new User({...userData, password: hashedPassword});
-            const {accessToken, refreshTokenDoc} = await extracted(user);
+            const {accessToken, refreshToken} = await extracted(user);
 
             await user.save();
 
             return {
                 token: accessToken,
-                refreshTokenId: refreshTokenDoc._id,
+                refreshToken: refreshToken,
                 user: {
                     id: user._id,
-                    name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role
                 }
@@ -53,9 +54,10 @@ class UserService {
     };
 
 
-    signIn = async (email, password) => {
+    signIn = async (reqBody) => {
         try {
-            const user = await User.findOne({ email }).exec();
+            const {usernameoremail, password} = reqBody;
+            const user = await User.findOne({ $or: [{ email: usernameoremail }, { username: usernameoremail }] }).exec();
             if (!user) {
                 throw new CustomError(401, 'Invalid email or password');
             }
@@ -65,14 +67,14 @@ class UserService {
                 throw new CustomError(401, 'Invalid email or password');
             }
 
-            const {accessToken, refreshTokenDoc} = await extracted(user);
+            const {accessToken, refreshToken} = await extracted(user);
 
             return {
                 token: accessToken,
-                refreshTokenId: refreshTokenDoc._id,
+                refreshToken: refreshToken,
                 user: {
                     id: user._id,
-                    name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role
                 }

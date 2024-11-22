@@ -4,23 +4,23 @@ const RefreshToken = require('../models/refreshToken.model');
 const logger = require('../utils/logger');
 const { CustomError } = require('../middleware/ExceptionHandler.middleware');
 
-const refreshTokenRotate = async (refreshTokenId) => {
+const refreshTokenRotate = async (refreshToken) => {
     try {
-        if (!refreshTokenId) {
+        if (!refreshToken) {
             throw new CustomError(401, "No token provided", { layer: 'SERVICE', methodName: 'refreshToken'});
         }
 
-        const refreshTokenDoc = await RefreshToken.findById(refreshTokenId).exec();
-        if (!refreshTokenDoc) {
+        const refreshTokenModel = await RefreshToken.findOne({ token: refreshToken }).exec();
+        if (!refreshTokenModel) {
             throw new CustomError(401, 'Invalid token', { layer: 'SERVICE', methodName: 'refreshToken' });
         }
 
         let payload;
         try {
-            payload = jwt.verify(refreshTokenDoc.token, process.env.JWT_REFRESH_SECRET);
+            payload = jwt.verify(refreshTokenModel.token, process.env.JWT_REFRESH_SECRET);
         } catch (err) {
             if (err.name === 'TokenExpiredError') {
-                payload = jwt.decode(refreshTokenDoc.token);
+                payload = jwt.decode(refreshTokenModel.token);
                 if (!payload) {
                     throw new CustomError(401, 'Invalid token', { layer: 'SERVICE', methodName: 'refreshToken' });
                 }
@@ -34,21 +34,24 @@ const refreshTokenRotate = async (refreshTokenId) => {
             throw new CustomError(401, 'User not found', { layer: 'SERVICE', methodName: 'refreshToken' });
         }
 
-        const newRefreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
-        const newRefreshTokenDoc = new RefreshToken({
+        const expiresInDays = (refreshTokenModel.expiresAt - Date.now()) / (1000 * 60 * 60 * 24);
+        console.info(`Token expires in ${expiresInDays} days`);
+
+        const newRefreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: `${expiresInDays}d` });
+        const newRefreshTokenModel = new RefreshToken({
             token: newRefreshToken,
             userId: user._id,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            expiresAt: refreshTokenModel.expiresAt // same expiration as the old refresh token
         });
-        await newRefreshTokenDoc.save();
+        await newRefreshTokenModel.save();
 
-        await RefreshToken.findByIdAndDelete(refreshTokenId);
+        await RefreshToken.findOneAndDelete({ token: refreshToken }).exec();
 
         const newAccessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
         return {
             accessToken: newAccessToken,
-            refreshTokenId: newRefreshTokenDoc._id
+            refreshToken: newRefreshToken
         };
 
     } catch (error) {

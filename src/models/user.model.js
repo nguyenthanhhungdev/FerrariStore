@@ -45,6 +45,10 @@ const userSchema = new Schema({
     status: {
         type: Boolean,
         required: true
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'sales', 'manager', 'customer'],
     }
 }, {
     timestamps: true, // Tự động thêm createdAt và updatedAt,

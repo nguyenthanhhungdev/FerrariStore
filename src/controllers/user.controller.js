@@ -4,9 +4,9 @@ const logger = require('../utils/logger');
 class UserController {
     signupController = async (req, res, next) => {
         try {
-            const {token, refreshTokenId, user} = await userService.signUp(req.body);
+            const {token, refreshToken, user} = await userService.signUp(req.body);
             // Set the refresh token as an HTTP-only cookie
-            res.cookie("refreshTokenId", refreshTokenId, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -27,9 +27,9 @@ class UserController {
 
     signInController = async (req, res, next) => {
         try {
-            const {token, refreshTokenId, user} = await userService.signIn(req.body.email, req.body.password);
+            const {token, refreshToken, user} = await userService.signIn(req.body);
             // Set the refresh token as an HTTP-only cookie
-            res.cookie("refreshTokenId", refreshTokenId, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",

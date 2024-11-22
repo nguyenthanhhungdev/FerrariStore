@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser')
 const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
+const cors = require('cors');
 // Use cookieParser
 app.use(cookieParser())
 
@@ -19,6 +20,15 @@ app.use(morgan('dev'))
 app.use(helmet())
 app.use(compression())
 app.use(express.json());
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(cors({
+        origin: 'https://localhost:8000', // Replace with your allowed origin
+        // methods: ['GET', 'POST'], // Specify allowed methods
+        allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
+    }));
+}
+
 require('./configs/config.app')
 
 // Init Db
@@ -44,7 +54,7 @@ app.use(passport.initialize())
 
 
 // error handler
-// Sử dụng ExceptionHandler
+// Sử dụng ExceptionHandler Middleware để xử lí lỗi
 app.use((err, req, res, next) => {
     handleError(err, req, res, next);
 });
