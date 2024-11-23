@@ -12,6 +12,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 const cors = require('cors');
+
 // Use cookieParser
 app.use(cookieParser())
 
@@ -21,13 +22,13 @@ app.use(helmet())
 app.use(compression())
 app.use(express.json());
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(cors({
-        origin: 'https://localhost:8000', // Replace with your allowed origin
-        // methods: ['GET', 'POST'], // Specify allowed methods
-        allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
-    }));
-}
+// Configure CORS for both development and production
+app.use(cors({
+    // origin: '*', // Cho phép tất cả các nguồn gốc
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true
+}));
 
 require('./configs/config.app')
 
@@ -47,11 +48,6 @@ app.use('/', require('./routes/index.js'))
 const passport = require('passport')
 require('./configs/passport.config')(app) // cấu hình passport và truyền vào app như 1 tham số
 app.use(passport.initialize())
-
-
-
-
-
 
 // error handler
 // Sử dụng ExceptionHandler Middleware để xử lí lỗi

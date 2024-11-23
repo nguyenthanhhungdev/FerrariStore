@@ -37,3 +37,19 @@ const checkPermission = (requiredPermission) => async (req, res, next) => {
 module.exports = {
     checkPermission
 };
+
+
+/**
+ *
+ *
+ *
+ * Middleware checkPermission trong file src/middleware/rBAC.middleware.js hoạt động như sau:
+ * Nhận quyền yêu cầu: Middleware nhận một tham số requiredPermission đại diện cho quyền cần kiểm tra.
+ * Lấy vai trò của người dùng: Middleware giả định rằng vai trò của người dùng được lưu trong req.user.role.
+ * Lấy quyền của vai trò: Middleware khởi tạo một đối tượng Permission và gọi phương thức getPermissionByRoleName để lấy danh sách quyền của vai trò người dùng.
+ * Kiểm tra quyền: Middleware kiểm tra xem danh sách quyền của người dùng có chứa quyền yêu cầu hay không.
+ * Quyết định tiếp tục: Nếu người dùng có quyền yêu cầu, middleware gọi next() để tiếp tục đến middleware tiếp theo. Nếu không, middleware gọi next() với một lỗi CustomError có mã trạng thái 403 (Forbidden).
+ *
+ *
+ *
+ * */
