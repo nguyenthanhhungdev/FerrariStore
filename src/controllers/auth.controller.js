@@ -17,6 +17,8 @@ class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
+                path: '/',
+                domain: 'localhost'
             });
             res.status(200).json({
                 success: true,

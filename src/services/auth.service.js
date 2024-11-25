@@ -6,6 +6,7 @@ const { CustomError } = require('../middleware/ExceptionHandler.middleware');
 
 const refreshTokenRotate = async (refreshToken) => {
     try {
+        console.log(refreshToken);
         if (!refreshToken) {
             throw new CustomError(401, "No token provided", { layer: 'SERVICE', methodName: 'refreshToken'});
         }

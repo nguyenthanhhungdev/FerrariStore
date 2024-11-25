@@ -24,8 +24,8 @@ app.use(express.json());
 
 // Configure CORS for both development and production
 app.use(cors({
-    // origin: '*', // Cho phép tất cả các nguồn gốc
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: 'http://localhost:5173', // Allow requests from this origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,POST',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true
 }));

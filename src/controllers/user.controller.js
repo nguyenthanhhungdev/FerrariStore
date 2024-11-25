@@ -28,6 +28,12 @@ class UserController {
     signInController = async (req, res, next) => {
         try {
             const {token, refreshToken, user} = await userService.signIn(req.body);
+            if (!token) {
+                res.status(200).json({
+                    success: false,
+                    message: 'Invalid credentials'
+                });
+            }
             // Set the refresh token as an HTTP-only cookie
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
@@ -39,7 +45,8 @@ class UserController {
             res.status(200).json({
                 success: true,
                 user,
-                token: `Bearer ${token}`
+                token: `Bearer ${token}`,
+                message: 'User signed in successfully'
             });
 
         } catch (error) {

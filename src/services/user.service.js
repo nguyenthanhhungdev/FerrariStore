@@ -59,12 +59,12 @@ class UserService {
             const {usernameoremail, password} = reqBody;
             const user = await User.findOne({ $or: [{ email: usernameoremail }, { username: usernameoremail }] }).exec();
             if (!user) {
-                throw new CustomError(401, 'Invalid email or password');
+                return { token: null, refreshToken: null, user: null };
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
-                throw new CustomError(401, 'Invalid email or password');
+                return { token: null, refreshToken: null, user: null };
             }
 
             const {accessToken, refreshToken} = await extracted(user);
@@ -76,6 +76,7 @@ class UserService {
                     id: user._id,
                     username: user.username,
                     email: user.email,
+                    avatar: user.avatar,
                     role: user.role
                 }
             };
