@@ -21,7 +21,7 @@ passportConfig = async() => {
                     }
                     if (err) {
                         // If an error occurs, return the error
-                        console.log(":::E::: Error: Token Error", err);
+                        logger.error(":::E::: Error: Token Error", err);
                         return done(err, false);
                     }
                     // If the user is not found, return false

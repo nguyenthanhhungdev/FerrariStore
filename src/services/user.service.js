@@ -85,8 +85,14 @@ class UserService {
         }
     };
 
-    getUseProfileByToken = async (token) => {
+    getUseProfileByToken = async (req) => {
         try {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                throw new CustomError(401, 'No token provided');
+            }
+
+            const token = authHeader.split(' ')[1];
             const userId = decodeTokenToUserID(token);
             const user = await User.findById(userId).exec();
             if (!user) {
