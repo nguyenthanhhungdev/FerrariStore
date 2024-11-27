@@ -1,5 +1,6 @@
 const userService = require('../services/user.service');
 const logger = require('../utils/logger');
+const {CustomError} = require("../middleware/ExceptionHandler.middleware");
 
 class UserController {
     signupController = async (req, res, next) => {
@@ -7,6 +8,12 @@ class UserController {
             const {token, refreshToken, user} = await userService.signUp(req.body);
             // Set the refresh token as an HTTP-only cookie
             res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+            });
+
+            res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -39,6 +46,12 @@ class UserController {
                 sameSite: "strict",
             });
 
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+            });
+
             logger.info('User signed in', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signInController' });
             res.status(200).json({
                 success: true,
@@ -53,7 +66,11 @@ class UserController {
 
     getProfileController = async (req, res, next) => {
         try {
-            const user = await userService.getUseProfileByToken(req); // Exclude password from the response
+            const token = req.cookies.token;
+            if (!token) {
+                throw new CustomError(400, 'Token is required');
+            }
+            const user = await userService.getUseProfileByToken(token); // Exclude password from the response
             logger.info('User profile retrieved', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' });
             res.status(200).json(user);
         } catch (error) {
@@ -63,7 +80,11 @@ class UserController {
 
     editProfileController = async (req, res, next) => {
         try {
-            const updatedUser = await userService.editProfile(req);
+            const token = req.cookies.token;
+            if (!token) {
+                throw new CustomError(400, 'Token is required');
+            }
+            const updatedUser = await userService.editProfile(token);
             logger.info('User profile updated', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
             res.status(200).json(updatedUser);
         } catch (error) {
