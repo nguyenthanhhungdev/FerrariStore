@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const validateMiddleware = require('../../middleware/validate.middleware');
 const userController = require('../../controllers/user.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
 const Joi = require('joi');
 
 // Define the schema for sign-up request data validation
@@ -11,11 +12,8 @@ const signUpValidationSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
-  avatar: Joi.string().required(),
-  gender: Joi.string().required(),
+  // avatar: Joi.string().required(),
   phone: Joi.string().required(),
-  birthday: Joi.string().required(),
-  status: Joi.boolean().required(),
 });
 
 // Apply the validation middleware to the sign-up route
@@ -30,5 +28,18 @@ const signInValidationSchema = Joi.object({
 router.post('/signin', validateMiddleware(signInValidationSchema), userController.signInController);
 
 router.get('/profile', userController.getProfileController);
+
+// Define the schema for edit-profile request data validation
+const editProfileValidationSchema = Joi.object({
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  username: Joi.string(),
+  email: Joi.string().email(),
+  // avatar: Joi.string(),
+  phone: Joi.string(),
+});
+
+// Apply the validation middleware and authentication middleware to the edit-profile route
+router.put('/edit-profile', authMiddleware, validateMiddleware(editProfileValidationSchema), userController.editProfileController);
 
 module.exports = router;

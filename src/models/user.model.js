@@ -27,11 +27,9 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        required: true
     },
     gender: {
         type: String,
-        required: true
     },
     phone: {
         type: String,
@@ -40,11 +38,9 @@ const userSchema = new Schema({
     },
     birthday: {
         type: String,
-        required: true
     },
     status: {
         type: Boolean,
-        required: true
     },
     role: {
         type: String,

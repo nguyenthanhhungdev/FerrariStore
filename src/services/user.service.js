@@ -20,8 +20,15 @@ async function extracted(user) {
 }
 
 decodeTokenToUserID = (token) => {
-    const result =  jwt.verify(token, process.env.JWT_SECRET);
-    return result.userId;
+    try {
+        const result = jwt.verify(token, process.env.JWT_SECRET);
+        return result.userId;
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            throw new CustomError(401, error.name);
+        }
+    }
+
 }
 
 class UserService {
@@ -52,7 +59,6 @@ class UserService {
             throw error;
         }
     };
-
 
     signIn = async (reqBody) => {
         try {
@@ -102,7 +108,46 @@ class UserService {
         } catch (error) {
             throw error;
         }
-    }
+    };
+
+    editProfile = async (req) => {
+        try {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                throw new CustomError(401, 'No token provided');
+            }
+
+            const token = authHeader.split(' ')[1];
+            const userId = decodeTokenToUserID(token);
+            
+
+            const { firstName, lastName, username, email /* avatar */, phone } = req.body;
+            const user = await User.findById(userId).exec();
+            if (!user) {
+                throw new CustomError(404, 'User not found');
+            }
+
+            if (username) user.username = username;
+            if (email) user.email = email;
+            // if (avatar) user.avatar = avatar;
+            if (phone) user.phone = phone;
+            if (firstName) user.firstName = firstName;
+            if (lastName) user.lastName = lastName;
+
+            await user.save();
+
+            return {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                username: user.username,
+                email: user.email,
+                phone: user.phone,
+            };
+        } catch (error) {
+            throw error;
+        }
+    };
 }
 
 module.exports = new UserService();

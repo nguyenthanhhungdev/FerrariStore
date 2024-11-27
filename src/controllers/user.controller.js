@@ -18,8 +18,6 @@ class UserController {
                 user,
                 token: `Bearer ${token}`
             });
-
-
         } catch (error) {
             next(error);
         }
@@ -48,7 +46,6 @@ class UserController {
                 token: `Bearer ${token}`,
                 message: 'User signed in successfully'
             });
-
         } catch (error) {
             next(error);
         }
@@ -59,6 +56,16 @@ class UserController {
             const user = await userService.getUseProfileByToken(req); // Exclude password from the response
             logger.info('User profile retrieved', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' });
             res.status(200).json(user);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    editProfileController = async (req, res, next) => {
+        try {
+            const updatedUser = await userService.editProfile(req);
+            logger.info('User profile updated', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
+            res.status(200).json(updatedUser);
         } catch (error) {
             next(error);
         }
