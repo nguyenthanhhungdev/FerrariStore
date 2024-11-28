@@ -38,8 +38,8 @@ class UserController {
             logger.info('User signed up', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signupController' });
             res.status(200).json({
                 success: true,
-                user,
-                token: `Bearer ${token}`
+                data: user,
+                message: 'User signed in successfully'
             });
         } catch (error) {
             next(error);
@@ -80,8 +80,7 @@ class UserController {
             logger.info('User signed in', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signInController' });
             res.status(200).json({
                 success: true,
-                user,
-                token: `Bearer ${token}`,
+                data: user,
                 message: 'User signed in successfully'
             });
         } catch (error) {
@@ -121,7 +120,37 @@ class UserController {
 
             const updatedUser = await userService.editProfile(token, req);
             logger.info('User profile updated', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
-            res.status(200).json(updatedUser);
+            res.status(200).json(
+                {
+                    success: true,
+                    data: updatedUser,
+                    message: 'User profile updated successfully'
+                }
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    signOutController = async (req, res, next) => {
+        try {
+            logger.info('User signed out', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signOutController' });
+            const encryptedToken = req.cookies.token;
+            if (!encryptedToken) {
+                throw new CustomError(400, 'Token is required');
+            }
+
+            // Decrypt the token
+            const bytes = CryptoJS.AES.decrypt(encryptedToken, process.env.TOKEN_SECRET);
+            const token = bytes.toString(CryptoJS.enc.Utf8)
+            const user = await userService.logout(token);
+            res.clearCookie("token");
+            res.clearCookie("refreshToken");
+            res.status(200).json({
+                success: true,
+                data: user,
+                message: 'User signed out successfully'
+            });
         } catch (error) {
             next(error);
         }

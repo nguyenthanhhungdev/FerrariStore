@@ -6,7 +6,7 @@ const { CustomError } = require('../middleware/ExceptionHandler.middleware');
 const {loggers} = require("winston");
 
 async function extracted(user) {
-    const accessToken = jwt.sign({userId: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '15m'});
+    const accessToken = jwt.sign({userId: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1m'});
 
     const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '100d'});
     const refreshTokenModel = new RefreshToken({
@@ -136,6 +136,17 @@ class UserService {
             throw error;
         }
     };
+
+    logout = async (token) => {
+        try {
+            const userId = decodeTokenToUserID(token);
+            console.info(userId);
+            await RefreshToken.deleteMany({ userId: userId });
+            return await User.findById(userId).exec();
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new UserService();

@@ -42,4 +42,6 @@ const editProfileValidationSchema = Joi.object({
 // Apply the validation middleware and authentication middleware to the edit-profile route
 router.put('/edit-profile', authMiddleware, validateMiddleware(editProfileValidationSchema), userController.editProfileController);
 
+router.post('/signout', userController.signOutController);
+
 module.exports = router;
