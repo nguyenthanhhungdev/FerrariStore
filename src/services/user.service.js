@@ -104,7 +104,7 @@ class UserService {
         }
     };
 
-    editProfile = async (token) => {
+    editProfile = async (token, req) => {
         try {
             const userId = decodeTokenToUserID(token);
             

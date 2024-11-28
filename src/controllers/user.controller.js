@@ -3,6 +3,8 @@ const logger = require('../utils/logger');
 const { CustomError } = require("../middleware/ExceptionHandler.middleware");
 const CryptoJS = require('crypto-js');
 
+// Todo: Tách hàm tạo token và refresh token ra thành một service riêng
+
 class UserController {
     encryptToken = (token) => {
         return CryptoJS.AES.encrypt(token, process.env.TOKEN_SECRET).toString();
@@ -117,7 +119,7 @@ class UserController {
             const bytes = CryptoJS.AES.decrypt(encryptedToken, process.env.TOKEN_SECRET);
             const token = bytes.toString(CryptoJS.enc.Utf8);
 
-            const updatedUser = await userService.editProfile(token);
+            const updatedUser = await userService.editProfile(token, req);
             logger.info('User profile updated', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
             res.status(200).json(updatedUser);
         } catch (error) {

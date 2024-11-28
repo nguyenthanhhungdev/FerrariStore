@@ -1,18 +1,31 @@
 const passport = require('passport');
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
-const {User} = require('../models/user.model'); // Adjust the path as necessary
+const {User} = require('../models/user.model');
 const logger = require('../utils/logger');
+const CryptoJS = require('crypto-js');
 
 logger.info("Load into Passport");
 const options = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Sending Token in Header Authorization
-    secretOrKey: process.env.JWT_SECRET, // The secret key used to sign the JWT
+    jwtFromRequest: (req) => {
+        if (req && req.cookies && req.cookies['token']) {
+            try {
+                // Decrypt the token from cookies
+                const bytes = CryptoJS.AES.decrypt(req.cookies['token'], process.env.TOKEN_SECRET);
+                const decryptedToken = bytes.toString(CryptoJS.enc.Utf8);
+                return decryptedToken;
+            } catch (error) {
+                logger.error("Error decrypting token:", error);
+                return null;
+            }
+        }
+        return null;
+    },
+    secretOrKey: process.env.JWT_SECRET,
 };
 
 passportConfig = async() => {
     passport.use(new JwtStrategy(options, async (jwt_payload, done) => {
         // Find the user by the JWT payload
-        // Assuming the JWT payload contains the user ID in a 'userId' field
         await User.findById(jwt_payload.userId)
             .then((user, err) => {
                     if (user) {

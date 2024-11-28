@@ -12,9 +12,10 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 const cors = require('cors');
+const passport = require('passport')
 
-// Use cookieParser
-app.use(cookieParser())
+// Use cookieParser with the same secret as JWT
+app.use(cookieParser(process.env.JWT_SECRET))
 
 // Init middlewares
 app.use(morgan('dev'))
@@ -34,6 +35,11 @@ require('./configs/config.app')
 
 // Init Db
 require('./dbs/init.mongodb.js')
+
+// Init passport before routes
+require('./configs/passport.config')(app)
+app.use(passport.initialize())
+
 // Init routes
 /**
  * Hàm xử lí yêu cầu người dùng và gửi lại phản hồi khi người dùng yêu cầu truy cập
@@ -43,11 +49,6 @@ require('./dbs/init.mongodb.js')
  *
  * */
 app.use('/', require('./routes/index.js'))
-
-// Init passport
-const passport = require('passport')
-require('./configs/passport.config')(app) // cấu hình passport và truyền vào app như 1 tham số
-app.use(passport.initialize())
 
 // error handler
 // Sử dụng ExceptionHandler Middleware để xử lí lỗi
