@@ -16,10 +16,16 @@ const handleError = (err, req, res, next) => {
     logger.error(message, { metadata });
     // Trả về lỗi cho client
     res.status(statusCode || 500).json({
-        status: "error",
-        statusCode: statusCode || 500,
-        message: message || "Internal Server Error",
-        metadata: metadata || {}
+        // status: "error",
+        // statusCode: statusCode || 500,
+        // message: message || "Internal Server Error",
+        isError: true,
+        detail: {
+            status: "error",
+            statusCode: statusCode || 500,
+            message: message || "Internal Server Error",
+            metadata: metadata || {}
+        }
     });
 };
 

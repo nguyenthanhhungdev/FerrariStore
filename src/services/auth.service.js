@@ -51,8 +51,8 @@ const refreshTokenRotate = async (refreshToken) => {
         const newAccessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
         return {
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken
+            newAccessToken: newAccessToken,
+            newRefreshToken: newRefreshToken
         };
 
     } catch (error) {
