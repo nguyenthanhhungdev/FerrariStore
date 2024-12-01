@@ -131,6 +131,7 @@ class UserService {
                 username: user.username,
                 email: user.email,
                 phone: user.phone,
+                avatar: user.avatar,
             };
         } catch (error) {
             throw error;

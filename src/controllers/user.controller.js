@@ -46,9 +46,9 @@ class UserController {
     signInController = async (req, res, next) => {
         try {
             const { token, refreshToken, user } = await userService.signIn(req.body);
-            if (!token) {
+            if (!token) { // If the token is null, the credentials are invalid
                 res.status(200).json({
-                    success: false,
+                    data: null,
                     message: 'Invalid credentials'
                 });
             }
