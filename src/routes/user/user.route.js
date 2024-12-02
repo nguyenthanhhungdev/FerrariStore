@@ -4,6 +4,8 @@ const validateMiddleware = require('../../middleware/validate.middleware');
 const userController = require('../../controllers/user.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 const Joi = require('joi');
+const AuthenticationError = require("../../middleware/ExceptionHandler.middleware");
+const {CustomError} = require("../../middleware/ExceptionHandler.middleware");
 
 // Define the schema for sign-up request data validation
 const signUpValidationSchema = Joi.object({
@@ -43,5 +45,13 @@ const editProfileValidationSchema = Joi.object({
 router.put('/edit-profile', authMiddleware, validateMiddleware(editProfileValidationSchema), userController.editProfileController);
 
 router.post('/signout', userController.signOutController);
+
+// Define the schema for change-password request data validation
+const changePasswordValidationSchema = Joi.object({
+  oldPassword: Joi.string().required(),
+  newPassword: Joi.string().required(),
+});
+router.put('/change-password', authMiddleware, validateMiddleware(changePasswordValidationSchema), userController.changePassword);
+
 
 module.exports = router;

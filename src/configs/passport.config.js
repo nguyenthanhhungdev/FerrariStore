@@ -11,8 +11,7 @@ const options = {
             try {
                 // Decrypt the token from cookies
                 const bytes = CryptoJS.AES.decrypt(req.cookies['token'], process.env.TOKEN_SECRET);
-                const decryptedToken = bytes.toString(CryptoJS.enc.Utf8);
-                return decryptedToken;
+                return bytes.toString(CryptoJS.enc.Utf8);
             } catch (error) {
                 logger.error("Error decrypting token:", error);
                 return null;
@@ -25,37 +24,36 @@ const options = {
 
 passportConfig = async() => {
     passport.use(new JwtStrategy(options, async (jwt_payload, done) => {
-        // Find the user by the JWT payload
-        await User.findById(jwt_payload.userId)
-            .then((user, err) => {
-                    if (user) {
-                        // If the user is found, return the user
-                        return done(null, user);
-                    }
-                    if (err) {
-                        // If an error occurs, return the error
-                        logger.error(":::E::: Error: Token Error", err);
-                        return done(err, false);
-                    }
-                    // If the user is not found, return false
-                    return done(null, false);
-                }
-            )
-            .catch(error => {
-                // If an error occurs, return the error
-                console.log(error);
-                return done(error, false);
-            })
-        passport.serializeUser((user, done) => {
-            done(null, user.id);
-        });
+        try {
+            const user = await User.findById(jwt_payload.userId);
 
-        passport.deserializeUser((id, done) => {
-            User.findById(id, (err, user) => {
-                done(err, user);
-            });
-        });
-    }))
-};
+            if (!user) {
+                // Không tìm thấy user
+                return done(null, false);
+            }
+
+            // Tìm thấy user, xác thực thành công
+            return done(null, user);
+        } catch (error) {
+            // Lỗi trong quá trình truy vấn
+            logger.error("Authentication error:", error);
+            return done(error, false);
+        }
+    }));
+
+    // Đặt serialize và deserialize ở ngoài
+    passport.serializeUser((user, done) => {
+        done(null, user.id);
+    });
+
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await User.findById(id);
+            done(null, user);
+        } catch (err) {
+            done(err);
+        }
+    });
+};;
 
 module.exports = passportConfig;

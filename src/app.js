@@ -52,6 +52,21 @@ app.use('/', require('./routes/index.js'))
 
 // error handler
 // Sử dụng ExceptionHandler Middleware để xử lí lỗi
+
+/**
+ *
+ *
+ *
+ * Các tham số trong đoạn mã bạn đã chọn (err, req, res, next) là các tham số của middleware trong Express.js. Dưới đây là giải thích chi tiết về từng tham số:
+ * err: Đây là đối tượng lỗi (Error object) được truyền vào middleware khi có lỗi xảy ra trong quá trình xử lý yêu cầu. Nó có thể chứa thông tin về lỗi như thông điệp lỗi (message), mã trạng thái (statusCode), và các thông tin bổ sung khác (metadata).
+ * req: Đây là đối tượng yêu cầu (Request object) đại diện cho yêu cầu HTTP được gửi từ client đến server. Nó chứa thông tin về yêu cầu như URL, phương thức HTTP, headers, và dữ liệu gửi kèm.
+ * res: Đây là đối tượng phản hồi (Response object) được sử dụng để gửi phản hồi HTTP từ server về client. Nó cung cấp các phương thức để thiết lập mã trạng thái, headers, và gửi dữ liệu phản hồi.
+ * next: Đây là hàm callback được sử dụng để chuyển quyền điều khiển đến middleware tiếp theo trong chuỗi middleware. Nếu không có lỗi, bạn có thể gọi next() để tiếp tục xử lý yêu cầu. Nếu có lỗi, bạn có thể gọi next(err) để chuyển lỗi đến middleware xử lý lỗi.
+ * Các tham số này được Express.js tự động truyền vào middleware khi có yêu cầu HTTP đến server.
+ *
+ *
+ * */
+
 app.use((err, req, res, next) => {
     handleError(err, req, res, next);
 });
