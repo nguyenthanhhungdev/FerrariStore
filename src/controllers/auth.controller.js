@@ -6,19 +6,18 @@ const {encryptToken ,decryptToken} = require("../utils/crypt");
 class AuthController {
     refreshToken = async (req, res, next) => {
         try {
-            const encryptedRefreshToken = req.cookies.refreshToken;
-            if (!encryptedRefreshToken) {
+            const oldEncryptedRefreshToken = req.cookies.refreshToken;
+            if (!oldEncryptedRefreshToken) {
                 throw new CustomError(400, 'Refresh token is required');
             }
 
-            const oldRefreshToken = decryptToken(encryptedRefreshToken);
-            const {newAccessToken, newRefreshToken} = await authService.refreshToken(oldRefreshToken);
+            console.info('Old refresh token in auth controller from cookies', oldEncryptedRefreshToken);
 
-            const newEncryptedAccessToken = encryptToken(newAccessToken);
-            const newEncryptedRefreshToken = encryptToken(newRefreshToken);
-            
+            const {encryptedNewAccessToken, encryptedNewRefreshToken} = await authService.refreshToken(oldEncryptedRefreshToken);
+
+
             logger.info('New access token and refresh token created', { layer: 'CONTROLLER', className: 'AuthController', methodName: 'refreshToken' });
-            res.cookie("token", newEncryptedAccessToken, {
+            res.cookie("token", encryptedNewAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -26,7 +25,7 @@ class AuthController {
                 domain: 'localhost'
             });
             
-            res.cookie("refreshToken", newEncryptedRefreshToken, {
+            res.cookie("refreshToken", encryptedNewRefreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",

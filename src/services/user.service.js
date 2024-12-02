@@ -3,21 +3,24 @@ const jwt = require('jsonwebtoken');
 const {User} = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
 const {CustomError} = require('../middleware/ExceptionHandler.middleware');
-const {loggers} = require("winston");
 const authService = require('./auth.service');
+const {encryptToken} = require("../utils/crypt");
 
 async function extracted(user) {
   const accessToken = jwt.sign({userId: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1m'});
 
   const refreshToken = jwt.sign({userId: user._id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '100d'});
+  const encryptedRefreshToken = encryptToken(refreshToken);
+  const encryptedAccessToken = encryptToken(accessToken);
+  console.log("Store encryptedRefreshToken into database", encryptedRefreshToken);
   const refreshTokenModel = new RefreshToken({
-    token: refreshToken,
+    token: encryptedRefreshToken,
     userId: user._id,
     expiresAt: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000)
   });
 
   await refreshTokenModel.save();
-  return {accessToken, refreshToken};
+  return {encryptedAccessToken, encryptedRefreshToken};
 }
 
 decodeTokenToUserID = (token) => {
@@ -42,13 +45,13 @@ class UserService {
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = new User({...userData, password: hashedPassword});
-      const {accessToken, refreshToken} = await extracted(user);
-
       await user.save();
 
+      const {encryptedAccessToken, encryptedRefreshToken} = await extracted(user);
+
       return {
-        token: accessToken,
-        refreshToken: refreshToken,
+        encryptedAccessToken: encryptedAccessToken,
+        encryptedRefreshToken: encryptedRefreshToken,
         user: {
           id: user._id,
           username: user.username,
@@ -74,16 +77,15 @@ class UserService {
         return {token: null, refreshToken: null, user: null};
       }
 
-      const {accessToken, refreshToken} = await extracted(user);
+      const {encryptedAccessToken, encryptedRefreshToken} = await extracted(user);
 
       return {
-        token: accessToken,
-        refreshToken: refreshToken,
+        encryptedAccessToken: encryptedAccessToken,
+        encryptedRefreshToken: encryptedRefreshToken,
         user: {
           id: user._id,
           username: user.username,
           email: user.email,
-          avatar: user.avatar,
           role: user.role
         }
       };
@@ -150,43 +152,31 @@ class UserService {
     }
   }
 
-  changePassword = async (token, oldPassword, newPassword) => {
+  changePassword = async (oldToken, oldEncryptedRefreshToken, oldPassword, newPassword) => {
     try {
 
       let userId;
-      // try {
-      userId = decodeTokenToUserID(token);
-      // } catch (error) {
-      // if (error.name === 'TokenExpiredError') {
-      //     const newToken = await authService.refreshToken(req, res);
-      //     if (!newToken) {
-      //         throw new CustomError(401, 'Failed to refresh token');
-      //     }
-      //     userId = decodeTokenToUserID(newToken);
-      // } else {
-      //     throw error;
-      // }
-      // throw error;
-      // }
+      userId = decodeTokenToUserID(oldToken);
+
+      const {encryptedNewAccessToken, encryptedNewRefreshToken} = await authService.refreshToken(oldEncryptedRefreshToken);
 
       const user = await User.findById(userId).exec();
       if (!user) {
         throw new CustomError(404, 'User not found', {layer: 'SERVICE', className: 'UserService', methodName: 'changePassword'});
-      }
 
+      }
       const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
       if (!isOldPasswordValid) {
         throw new CustomError(401, 'Old password is incorrect', {layer: 'SERVICE', className: 'UserService', methodName: 'changePassword'});
-      }
 
+      }
       user.password = await bcrypt.hash(newPassword, 10);
+
       await user.save();
 
-      const {accessToken, refreshToken} = await extracted(user);
-
       return {
-        token: accessToken,
-        refreshToken: refreshToken,
+        encryptedNewAccessToken: encryptedNewAccessToken,
+        encryptedNewRefreshToken: encryptedNewRefreshToken,
       };
     } catch (error) {
       throw error;

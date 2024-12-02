@@ -10,11 +10,7 @@ class UserController {
 
     signupController = async (req, res, next) => {
         try {
-            const {token, refreshToken, user} = await userService.signUp(req.body);
-
-            // Encrypt the tokens
-            const encryptedToken = encryptToken(token);
-            const encryptedRefreshToken = encryptToken(refreshToken);
+            const {encryptedAccessToken, encryptedRefreshToken, user} = await userService.signUp(req.body);
 
             // Set the encrypted tokens as HTTP-only cookies
             res.cookie("refreshToken", encryptedRefreshToken, {
@@ -25,7 +21,7 @@ class UserController {
                 domain: "localhost"
             });
 
-            res.cookie("token", encryptedToken, {
+            res.cookie("token", encryptedAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -49,7 +45,7 @@ class UserController {
 
     signInController = async (req, res, next) => {
         try {
-            const {token, refreshToken, user} = await userService.signIn(req.body);
+            const {encryptedAccessToken, encryptedRefreshToken, user} = await userService.signIn(req.body);
             if (!user) { // If the user is null, the credentials are invalid
                 res.status(200).json({
                     data: null,
@@ -58,12 +54,10 @@ class UserController {
                 return;
             }
 
-            // Encrypt the tokens
-            const encryptedToken = encryptToken(token);
-            const encryptedRefreshToken = encryptToken(refreshToken);
-
+            console.info('encryptedAccessToken in controller', encryptedAccessToken);
+            console.info('encryptedRefreshToken in controller', encryptedRefreshToken);
             // Set the encrypted tokens as HTTP-only cookies
-            res.cookie("refreshToken", encryptedRefreshToken, {
+            res.cookie("refreshToken",  encryptedRefreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -71,7 +65,7 @@ class UserController {
                 domain: "localhost"
             });
 
-            res.cookie("token", encryptedToken, {
+            res.cookie("token", encryptedAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -97,7 +91,7 @@ class UserController {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required');
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' });
             }
 
             // Decrypt the token
@@ -111,7 +105,7 @@ class UserController {
             });
             res.status(200).json(user);
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' }));
+            next(error);
         }
     }
 
@@ -119,7 +113,7 @@ class UserController {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required');
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
             }
 
             // Decrypt the token
@@ -138,7 +132,7 @@ class UserController {
               }
             );
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' }));
+            next(error);
         }
     }
 
@@ -146,7 +140,7 @@ class UserController {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required');
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signOutController' });
             }
             // Decrypt the token
 
@@ -165,28 +159,31 @@ class UserController {
                 message: 'User signed out successfully'
             });
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'signOutController' }));
+            next(error);
         }
     }
 
     changePassword = async (req, res, next) => {
         try {
-            let encryptedToken = req.cookies.token;
-            if (!encryptedToken) {
+            let oldEncryptedToken = req.cookies.token;
+            if (!oldEncryptedToken) {
                 throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword' });
             }
 
+            let oldEncryptedRefreshToken = req.cookies.refreshToken;
+            if (!oldEncryptedRefreshToken) {
+                throw new CustomError(400, 'Refresh token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword' });
+            }
+
             // Decrypt the token
-            const oldToken = decryptToken(encryptedToken);
+            const oldToken = decryptToken(oldEncryptedToken);
 
             const {oldPassword, newPassword} = req.body;
-            const {token, refreshToken} = await userService.changePassword(oldToken, oldPassword, newPassword);
+            const {encryptedNewAccessToken, encryptedNewRefreshToken} = await userService.changePassword(oldToken, oldEncryptedRefreshToken, oldPassword, newPassword);
 
-            encryptedToken = encryptToken(token);
-            const encryptedRefreshToken = encryptToken(refreshToken);
 
             // Set the encrypted tokens as HTTP-only cookies
-            res.cookie("refreshToken", encryptedRefreshToken, {
+            res.cookie("refreshToken", encryptedNewRefreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -194,7 +191,7 @@ class UserController {
                 domain: "localhost"
             });
 
-            res.cookie("token", encryptedToken, {
+            res.cookie("token", encryptedNewAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
@@ -210,7 +207,7 @@ class UserController {
                 message: 'User password changed successfully'
             });
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword' }));
+            next(error);
         }
     }
 }
