@@ -7,6 +7,10 @@ const router = Router();
 const product = require('../../controllers/product.controller');
 // getAll
 router.get('/products', product.getAll);
+//getAllBooks
+router.get('/products/books', product.getAllBooks);
+// getBookByType
+router.get('/products/books/type/:typeName', product.getBooksByType);
 //getAllProductsPopular
 router.get('/product/popular', product.getAllProductsPopular);
 //getAllProductsOfCategory

@@ -1,5 +1,6 @@
 'use strict'
 const productService = require('../services/product.service')
+const {CustomError} = require("../middleware/ExceptionHandler.middleware");
 
 class productController {
 
@@ -15,6 +16,15 @@ class productController {
             res.status(200).json(products);
         } catch (error) {
             res.status(500).json({message: error.message});
+        }
+    }
+
+    getAllBooks = async (req, res, next) => {
+        try {
+            const books = await productService.getBooks();
+            res.status(200).json(books);
+        } catch (err) {
+            next(new CustomError(500, err.message, { layer: 'CONTROLLER', className: 'ProductController', methodName: 'getAllBooks' }));
         }
     }
 
@@ -98,6 +108,15 @@ class productController {
             res.status(200).json(products);
         } catch (err) {
             res.status(500).json({message: err.message});
+        }
+    }
+
+    getBooksByType = async (req, res, next) => {
+        try {
+            const books = await productService.getBooksByType(req.params.typeName);
+            res.status(200).json(books);
+        } catch (err) {
+            next(new CustomError(500, err.message, { layer: 'CONTROLLER', className: 'ProductController', methodName: 'getBooksByType' }));
         }
     }
 }
