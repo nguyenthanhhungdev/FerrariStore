@@ -22,7 +22,16 @@ class productController {
     getAllBooks = async (req, res, next) => {
         try {
             const books = await productService.getBooks();
-            res.status(200).json(books);
+            if (books.length === 0) {
+                res.status(200).json({
+                    data: null,
+                    message: 'No book found'
+                })
+            }
+            res.status(200).json({
+                data: books,
+                message: 'Get all books successfully'
+            });
         } catch (err) {
             next(new CustomError(500, err.message, { layer: 'CONTROLLER', className: 'ProductController', methodName: 'getAllBooks' }));
         }
@@ -114,7 +123,16 @@ class productController {
     getBooksByType = async (req, res, next) => {
         try {
             const books = await productService.getBooksByType(req.params.typeName);
-            res.status(200).json(books);
+            if (books.length === 0) {
+                res.status(200).json({
+                    data: null,
+                    message: 'No book found'
+                })
+            }
+            res.status(200).json({
+                data: books,
+                message: 'Get books by type successfully'
+            });
         } catch (err) {
             next(new CustomError(500, err.message, { layer: 'CONTROLLER', className: 'ProductController', methodName: 'getBooksByType' }));
         }
