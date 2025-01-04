@@ -1,3 +1,4 @@
+// jshint esversion: 8
 const userService = require('../services/user.service');
 const logger = require('../utils/logger');
 const { CustomError } = require("../middleware/ExceptionHandler.middleware");
@@ -5,10 +6,11 @@ const { encryptToken, decryptToken } = require('../utils/crypt');
 const CryptoJS = require('crypto-js');
 
 // Todo: Tách hàm tạo token và refresh token ra thành một service riêng
+// Todo: Tham khảo cách xác thực của google
 
 class UserController {
 
-    signupController = async (req, res, next) => {
+    async signupController(req, res, next) {
         try {
             const {encryptedAccessToken, encryptedRefreshToken, user} = await userService.signUp(req.body);
 
@@ -18,7 +20,7 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
 
             res.cookie("token", encryptedAccessToken, {
@@ -26,30 +28,30 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
 
             logger.info('User signed up', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'signupController'
+                methodName: 'signupController',
             });
             res.status(200).json({
                 data: user,
-                message: 'User signed in successfully'
+                message: 'User signed in successfully',
             });
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'signupController' }));
+            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'signupController', }));
         }
     }
 
-    signInController = async (req, res, next) => {
+    async signInController(req, res, next) {
         try {
             const {encryptedAccessToken, encryptedRefreshToken, user} = await userService.signIn(req.body);
             if (!user) { // If the user is null, the credentials are invalid
                 res.status(200).json({
                     data: null,
-                    message: 'Invalid credentials'
+                    message: 'Invalid credentials',
                 });
                 return;
             }
@@ -62,7 +64,7 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
 
             res.cookie("token", encryptedAccessToken, {
@@ -70,28 +72,28 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
 
             logger.info('User signed in', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'signInController'
+                methodName: 'signInController',
             });
             res.status(200).json({
                 data: user,
-                message: 'User signed in successfully'
+                message: 'User signed in successfully',
             });
         } catch (error) {
-            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'signInController' }));
+            next(new CustomError(error.status, error.message, { layer: 'CONTROLLER', className: 'UserController', methodName: 'signInController' ,}));
         }
     }
 
-    getProfileController = async (req, res, next) => {
+    async getProfileController(req, res, next) {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' });
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'getProfileController' ,});
             }
 
             // Decrypt the token
@@ -101,7 +103,7 @@ class UserController {
             logger.info('User profile retrieved', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'getProfileController'
+                methodName: 'getProfileController',
             });
             res.status(200).json(user);
         } catch (error) {
@@ -109,11 +111,11 @@ class UserController {
         }
     }
 
-    editProfileController = async (req, res, next) => {
+    async editProfileController(req, res, next) {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController' });
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'editProfileController', });
             }
 
             // Decrypt the token
@@ -123,12 +125,12 @@ class UserController {
             logger.info('User profile updated', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'editProfileController'
+                methodName: 'editProfileController',
             });
             res.status(200).json(
               {
                   data: updatedUser,
-                  message: 'User profile updated successfully'
+                  message: 'User profile updated successfully',
               }
             );
         } catch (error) {
@@ -136,11 +138,11 @@ class UserController {
         }
     }
 
-    signOutController = async (req, res, next) => {
+    async signOutController(req, res, next) {
         try {
             const encryptedToken = req.cookies.token;
             if (!encryptedToken) {
-                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signOutController' });
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'signOutController', });
             }
             // Decrypt the token
 
@@ -152,27 +154,27 @@ class UserController {
             logger.info('User signed out', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'signOutController'
+                methodName: 'signOutController',
             });
             res.status(200).json({
                 data: user,
-                message: 'User signed out successfully'
+                message: 'User signed out successfully',
             });
         } catch (error) {
             next(error);
         }
     }
 
-    changePassword = async (req, res, next) => {
+    async changePassword(req, res, next) {
         try {
             let oldEncryptedToken = req.cookies.token;
             if (!oldEncryptedToken) {
-                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword' });
+                throw new CustomError(400, 'Token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword', });
             }
 
             let oldEncryptedRefreshToken = req.cookies.refreshToken;
             if (!oldEncryptedRefreshToken) {
-                throw new CustomError(400, 'Refresh token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword' });
+                throw new CustomError(400, 'Refresh token is required', { layer: 'CONTROLLER', className: 'UserController', methodName: 'changePassword', });
             }
 
             // Decrypt the token
@@ -188,7 +190,7 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
 
             res.cookie("token", encryptedNewAccessToken, {
@@ -196,15 +198,15 @@ class UserController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
                 path: "/",
-                domain: "localhost"
+                domain: "localhost",
             });
             logger.info('User password changed', {
                 layer: 'CONTROLLER',
                 className: 'UserController',
-                methodName: 'changePassword'
+                methodName: 'changePassword',
             });
             res.status(200).json({
-                message: 'User password changed successfully'
+                message: 'User password changed successfully',
             });
         } catch (error) {
             next(error);

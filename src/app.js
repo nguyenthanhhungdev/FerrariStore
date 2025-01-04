@@ -2,43 +2,85 @@
  * Sử dụng require để import module express
  * Sau đó tạo một thể hiện của express bằng cách gọi hàm express().
  */
-'use strict'
+/* jshint esversion: 6 */
+'use strict';
 const express = require('express');
 const { handleError } = require('./middleware/ExceptionHandler.middleware');
 const app = express();
 module.exports = app;
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 const cors = require('cors');
-const passport = require('passport')
+const passport = require('passport');
+const csrf = require('csurf');
 
 // Use cookieParser with the same secret as JWT
-app.use(cookieParser(process.env.JWT_SECRET))
+app.use(cookieParser(process.env.JWT_SECRET));
+// Initialize CSRF protection middleware
+const csrfProtection = csrf({cookie: true, });
 
-// Init middlewares
-app.use(morgan('dev'))
-app.use(helmet())
-app.use(compression())
+// Apply CSRF middleware to protect routes
+app.use(csrfProtection);
+
+// CSRF Token Middleware to send a token to the frontend
+app.use((req, res, next) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken(), {httpOnly: true, secure: true, sameSite: 'Strict', });
+    next();
+});
+
+// Middleware xử lý lỗi CSRF
+app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+        res.status(403).json({ error: 'Invalid CSRF token', });
+    } else {
+        next(err);
+    }
+});
+
+app.use(morgan('dev'));
+app.use(helmet());
+app.use(helmet.xssFilter());
+app.use(compression());
 app.use(express.json());
 
-// Configure CORS for both development and production
-app.use(cors({
-    origin: 'http://localhost:5173', // Allow requests from this origin
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,POST',
-    allowedHeaders: 'Content-Type, Authorization',
-    credentials: true
-}));
 
-require('./configs/config.app')
+// Configure Content-Security-Policy (CSP)
+app.use(
+  helmet.contentSecurityPolicy({
+      directives: {
+          defaultSrc: ["'self'", ],
+          scriptSrc: ["'self'", "'unsafe-inline'", "https://trusted-cdn.example.com", ],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://trusted-cdn.example.com", ],
+          imgSrc: ["'self'", "data:", "https://images.example.com", ],
+          connectSrc: ["'self'", "https://api.example.com", ],
+          fontSrc: ["'self'", "https://fonts.example.com", ],
+          objectSrc: ["'none'", ],
+          upgradeInsecureRequests: [],
+      },
+  })
+);
+
+// Configure CORS for both development and production
+const corsOptions = {
+    origin: 'http://localhost:5173', // Allow requests from this origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE', ], // Allowed HTTP methods
+    credentials: true, // Allow cookies to be sent and received
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', ], // Define allowed headers
+};
+
+// Use the CORS middleware in Express
+app.use(cors(corsOptions));
+
+require('./configs/config.app');
 
 // Init Db
-require('./dbs/init.mongodb.js')
+require('./dbs/init.mongodb.js');
 
 // Init passport before routes
-require('./configs/passport.config')(app)
-app.use(passport.initialize())
+require('./configs/passport.config')(app);
+app.use(passport.initialize());
 
 // Init routes
 /**
@@ -48,7 +90,7 @@ app.use(passport.initialize())
  * của ứng dụng
  *
  * */
-app.use('/', require('./routes/index.js'))
+app.use('/', require('./routes/index.js'));
 
 // error handler
 // Sử dụng ExceptionHandler Middleware để xử lí lỗi
@@ -73,4 +115,4 @@ app.use((err, req, res, next) => {
 /**
  * Sau khi đã import module vào bằng câu lệnh require thì ta thực hiện exports module
  */
-module.exports = app
+module.exports = app;

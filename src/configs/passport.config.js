@@ -1,3 +1,5 @@
+/* jshint esversion: 8 */
+"use strict";
 const passport = require('passport');
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 const {User} = require('../models/user.model');
@@ -7,10 +9,10 @@ const CryptoJS = require('crypto-js');
 logger.info("Load into Passport");
 const options = {
     jwtFromRequest: (req) => {
-        if (req && req.cookies && req.cookies['token']) {
+        if (req && req.cookies && req.cookies.token) {
             try {
                 // Decrypt the token from cookies
-                const bytes = CryptoJS.AES.decrypt(req.cookies['token'], process.env.TOKEN_SECRET);
+                const bytes = CryptoJS.AES.decrypt(req.cookies.token, process.env.TOKEN_SECRET);
                 return bytes.toString(CryptoJS.enc.Utf8);
             } catch (error) {
                 logger.error("Error decrypting token:", error);
@@ -22,7 +24,7 @@ const options = {
     secretOrKey: process.env.JWT_SECRET,
 };
 
-passportConfig = async() => {
+const passportConfig = async() => {
     passport.use(new JwtStrategy(options, async (jwt_payload, done) => {
         try {
             const user = await User.findById(jwt_payload.userId);
@@ -54,6 +56,6 @@ passportConfig = async() => {
             done(err);
         }
     });
-};;
+};
 
 module.exports = passportConfig;
